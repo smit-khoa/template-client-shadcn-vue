@@ -50,18 +50,19 @@ npm run preview    # Preview production build
 ```
 smit-chat/
 ├── src/
-│   ├── pages/             # Route-level components
+│   ├── pages/             # Route-level components (7 pages)
 │   ├── components/        # 4-layer component architecture
 │   │   ├── ui/           # Shadcn/UI base (21 components)
-│   │   ├── custom/       # Custom wrappers (22 components)
+│   │   ├── custom/       # Custom wrappers (26 components)
 │   │   ├── app/          # Feature components
-│   │   └── shared/       # Utilities
-│   ├── store/            # Pinia state management
-│   ├── router/           # Vue Router configuration
-│   ├── controllers/      # API wrapper (Axios)
-│   ├── common/           # Utility functions
-│   ├── assets/           # Images, fonts, icons
-│   ├── style.css         # Global styles + CSS variables
+│   │   └── shared/       # Shared utilities
+│   ├── store/            # Pinia state management (user store)
+│   ├── router/           # Vue Router 4.6.4 + auth guards
+│   ├── controllers/      # API wrapper (Axios) with auto-toast
+│   ├── common/           # Utility functions (format, image, copy)
+│   ├── composables/      # Vue composables (useSprite, useTheme)
+│   ├── assets/           # Images, fonts (Inter), SVG sprites
+│   ├── style.css         # Global styles + 50+ CSS variables
 │   ├── main.ts           # App entry point + auth guard
 │   └── App.vue           # Root component
 │
@@ -69,11 +70,14 @@ smit-chat/
 │   ├── project-overview-pdr.md
 │   ├── code-standards.md
 │   ├── system-architecture.md
-│   └── codebase-summary.md
+│   ├── codebase-summary.md
+│   ├── design-guidelines.md
+│   └── project-roadmap.md
 │
-├── vite.config.ts        # Vite configuration
-├── tsconfig.json         # TypeScript configuration
-├── package.json          # Dependencies
+├── e2e/                  # E2E tests (Playwright)
+├── vite.config.ts        # Vite 7.2.4 (HTTPS, port 8309)
+├── tsconfig.json         # TypeScript 5.9.3 (strict mode)
+├── package.json          # 30 dependencies
 └── README.md             # This file
 ```
 
@@ -371,15 +375,16 @@ Proprietary - All rights reserved
 
 ---
 
-**Version:** 0.0.0 (MVP)
-**Status:** Active Development
-**Last Updated:** 2026-01-26
+**Version:** 0.0.0 (MVP Phase Complete)
+**Status:** Production Ready
+**Last Updated:** 2026-01-27
 **Tech Lead:** Development Team
 
 ## Quick Reference
 
-- **Component Count:** 23 Custom + 21 Shadcn/UI Components
+- **Component Count:** 26 Custom + 21 Shadcn/UI Base = 47 total
 - **TypeScript Files:** ~56 files
-- **E2E Tests:** 9 test suites
-- **Development Time:** HTTPS auto-enabled, port 8309
+- **E2E Tests:** 9 test suites (Playwright)
+- **Development:** HTTPS auto-enabled, port 8309
 - **Documentation:** `/docs` folder with comprehensive guides
+- **Last Updated:** 2026-01-27

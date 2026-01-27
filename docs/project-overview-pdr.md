@@ -88,9 +88,10 @@ Tính năng:
 | Styling | Tailwind CSS 4.1.18 |
 
 ### 4.2 UI/Component System
-- **Shadcn/UI** - 21 base components (Dialog, Dropdown, Button, Input, etc)
+- **Shadcn/UI** - 21 base components (Dialog, Dropdown, Button, Input, Tabs, Checkbox, etc)
 - **Reka UI** - Headless UI primitives (2.6.1)
-- **Custom Components** - 23 wrapper components
+- **Custom Components** - 26 wrapper/enhanced components (Input, Button, Search, Dropdown, Popup, Drawer, Confirm, Table, Tabs, Icon, Paging, Tooltip, Box, Loading, DatePicker, Filter, etc)
+- **SVG Sprites** - 37 custom icons in sprites.svg
 - **Lucide Icons** - SVG icons via lucide-vue-next
 - **Vue Sonner** - Toast notifications (2.0.2)
 
@@ -385,10 +386,12 @@ Project success khi:
 
 ---
 
-**Document Version:** 1.1
-**Last Updated:** 2026-01-26
+**Document Version:** 1.2
+**Last Updated:** 2026-01-27
 **Status:** Live (MVP Phase Complete)
 **Owner:** SMIT Product Team
 **Total Files:** 302 files
-**Total Components:** 44 (23 custom + 21 Shadcn/UI)
-**E2E Test Coverage:** 9 test suites
+**Total Components:** 47 (26 Custom + 21 Shadcn/UI Base)
+**E2E Test Coverage:** 9 test suites (Playwright)
+**Architecture:** 4-layer component system
+**Language:** Vue 3.5.24 + TypeScript 5.9.3 (strict mode)

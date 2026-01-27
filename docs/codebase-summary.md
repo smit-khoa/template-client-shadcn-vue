@@ -76,51 +76,63 @@ smit-chat/
   - Host config (dev vs production)
   - Token handling, headers, error handling
 
-### Store (State Management)
-- **Pinia `user.ts`**
-  - State: `user` object
-  - Actions: `setUser()`
-  - Getters: `getUser`
-  - Dữ liệu: `{ userName, email }`
+### Store (State Management - Pinia)
+- **`user.ts`** (Current store)
+  - State: `user` (UserData | null)
+  - Actions: `setUser(user: UserData)`
+  - Getters: `getUser`, `hasCompany`
+  - Data: `{ user_id, user_name, email, company_id }`
+
+### Composables (Vue Composables)
+- **`useSprite()`** - SVG sprite icon management with path resolution
+- **`useTheme()`** - Dark/Light mode theme switching
 
 ### Router (Navigation)
 - **Vue Router 4.6.4**
-- Routes: 7 pages + nested authentication routes
-- Meta guards: `needLogin`, `block`
-- Dynamic imports (lazy loading)
+- Routes: 7 main pages (Home, Auth, Onboarding, Staff, Platforms, Customer, ChatHistory)
+- Nested: Authentication routes (login, register, verify, oauth, forgot, reset)
+- Meta guards: `needLogin`, `block` for auth control
+- Auth guard: beforeEach() → GET /api/v1/public/auth/me → validate token
+- Dynamic imports (lazy loading) for all routes
 
 ### Components (UI Layer)
 
-**Custom Components (22):**
-1. `input/` - Text, email, password, currency inputs
-2. `button/` - Primary, secondary, danger variants
-3. `checkbox/` - Checkbox + radio modes
-4. `dropdown/` - Dropdown menus
-5. `tabs/` - Tab navigation
-6. `popup/` - Modal dialogs
-7. `drawer/` - Side panels
-8. `table/` - Data tables
-9. `search/` - Search inputs
-10. `icon/` - Icon rendering
-11. `paging/` - Pagination
-12. `loading/` - Loading states
-13. `confirm/` - Confirm dialogs
-14. `box/` - Container boxes
+**Custom Components (26):**
+1. `input/` - Text, email, password, number, currency inputs with icon support
+2. `button/` - 7 variants (primary, secondary, danger, noborder, error, success, loading)
+3. `checkbox/` - Checkbox + radio modes with label support
+4. `dropdown/` - Dropdown menus with position control
+5. `tabs/` - Tab navigation with icon support
+6. `popup/` - Modal dialogs with footer slots
+7. `drawer/` - Side panels with width control
+8. `table/` - Data tables with layout control
+9. `search/` - Search inputs with debounce
+10. `icon/` - SVG icon rendering from sprites
+11. `paging/` - Pagination with page control
+12. `loading/` - Loading spinner states
+13. `confirm/` - Confirm dialogs with title/content
+14. `box/` - Container boxes (state: default, selected, disabled)
 15. `switch/` - Toggle switches
 16. `accordion/` - Expandable sections
-17. `app-table/` - Advanced table
-18. `tooltip/` - Tooltips
-19. `label/` - Form labels
-20. Và các component khác
+17. `tooltip/` - Hover tooltips
+18. `label/` - Form labels
+19. `theme-toggle/` - Light/Dark mode switcher
+20. `date-picker/` - Date selection component
+21. `filter/` - Filter components
+22. `load-page/` - Page loading state
+23. `load-default/` - Default loading state
+24. `app-table/` - Advanced data table
+25. `badge/` - Badge component
+26. Additional utility components
 
 **Shadcn/UI Base (21):**
-- Dialog, Alert Dialog, Drawer, Sheet
-- Dropdown Menu, Popover, Select, Combobox
-- Tabs, Toggle, Toggle Group
-- Checkbox, Radio Group, Switch
-- Input, Textarea, Button, Skeleton
-- Scroll Area, Accordion, Separator
-- Toast notifications (Sonner)
+- Dialog, Alert Dialog, Drawer, Sheet (modals & panels)
+- Dropdown Menu, Popover, Select, Combobox (dropdowns)
+- Tabs, Toggle, Toggle Group (navigation)
+- Checkbox, Radio Group, Switch (form inputs)
+- Input, Textarea, Button, Skeleton (basic elements)
+- Scroll Area, Accordion, Separator (layouts)
+- Toast notifications (Sonner for notifications)
 
 ### Pages (Route-Level)
 
@@ -308,8 +320,11 @@ import { router } from "@/router"
 
 ---
 
-**Cập nhật lần cuối:** 2026-01-26
-**Phiên bản:** 0.0.0 (MVP)
-**Tech Stack:** Vue 3.5.24 + TypeScript 5.9.3 + Vite 7.2.4 + Tailwind CSS 4.1.18
-**Repository Size:** 302 files, 490,912 tokens, 1,595,470 characters
-**Status:** Active Development - MVP Phase Complete
+**Cập nhật lần cuối:** 2026-01-27
+**Phiên bản:** 0.0.0 (MVP Phase Complete)
+**Tech Stack:** Vue 3.5.24 + TypeScript 5.9.3 (strict) + Vite 7.2.4 + Tailwind CSS 4.1.18
+**Component Architecture:** 4-layer (UI → Custom → App → Pages)
+**Repository Size:** 302 files, 47 total components
+**Testing:** 9 E2E test suites (Playwright 1.58.0)
+**Status:** Production Ready - MVP Phase Complete
+**Dependencies:** 30 packages (15 runtime + 15 dev)

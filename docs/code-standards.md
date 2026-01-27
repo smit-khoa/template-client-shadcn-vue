@@ -92,53 +92,75 @@ import UserProfile from "@/components/UserProfile.vue"
 ### 2.1 Folder Organization
 ```
 src/
-├── components/
-│   ├── ui/              # Shadcn/UI base (import from here)
-│   ├── custom/          # Custom wrappers
-│   │   ├── input/
-│   │   │   ├── Input.vue        # Main component
-│   │   │   ├── index.ts         # Export
-│   │   │   └── Input.scss
-│   │   └── button/
-│   │       ├── Button.vue
-│   │       ├── index.ts
-│   │       └── Button.scss
-│   ├── app/             # Feature components
-│   │   ├── authentication/
-│   │   │   ├── Login.vue
-│   │   │   └── Register.vue
-│   │   └── staff/
-│   │       ├── StaffList.vue
-│   │       └── StaffDetail.vue
-│   └── shared/          # Utilities
+├── components/          # 47 total components (4-layer architecture)
+│   ├── ui/              # Layer 1: Shadcn/UI base (21 components)
+│   │   ├── dialog/      # Dialog, AlertDialog, Drawer, Sheet
+│   │   ├── dropdown-menu/  # Dropdowns & menus
+│   │   ├── button/      # Button base
+│   │   ├── input/       # Input base
+│   │   ├── checkbox/, radio-group/, switch/
+│   │   ├── tabs/, accordion/
+│   │   └── scroll-area/, separator/, skeleton/, toast/
+│   │
+│   ├── custom/          # Layer 2: Custom wrappers (26 components)
+│   │   ├── input/       # Enhanced Input with icon, validation
+│   │   ├── button/      # Button with 7 variants, 5 sizes
+│   │   ├── dropdown/, tabs/, checkbox/, search/
+│   │   ├── popup/, drawer/, confirm/, table/
+│   │   ├── icon/, paging/, loading/, tooltip/
+│   │   ├── box/, theme-toggle/, date-picker/
+│   │   ├── filter/, load-page/, load-default/
+│   │   └── app-table/, badge/, switch/
+│   │
+│   ├── app/             # Layer 3: Feature components
+│   │   ├── authentication/  # Login, Register, Verify, OAuth, Forgot, Reset
+│   │   ├── onboarding/      # Company setup, Employee invitation
+│   │   ├── staff/           # StaffList, StaffDetail, StaffForm
+│   │   ├── platforms/       # PlatformCard, PlatformSettings
+│   │   ├── customer/        # CustomerDirectory, CustomerDetail
+│   │   └── chat-history/    # MessageList, MessageFilter
+│   │
+│   └── shared/          # Utilities & base components
 │
-├── pages/               # Page-level components (route)
-│   ├── Auth.vue
-│   ├── Staff.vue
-│   └── ...
+├── pages/               # Layer 4: Page-level components (7 pages)
+│   ├── Auth.vue         # Authentication layout wrapper
+│   ├── Home.vue         # Landing page
+│   ├── Onboarding.vue   # Company + employee setup
+│   ├── Staff.vue        # Staff management page
+│   ├── Platforms.vue    # Platform connections
+│   ├── Customer.vue     # Customer directory
+│   └── ChatHistory.vue  # Message history
 │
-├── store/               # Pinia
-│   └── user.ts
+├── layout/              # App layouts
+│   └── index.vue        # Main app layout + navbar
 │
-├── router/              # Routes
-│   └── index.ts
+├── store/               # Pinia state management
+│   └── user.ts          # User store (state, actions, getters)
+│
+├── router/              # Vue Router configuration
+│   └── index.ts         # Route definitions, meta guards
 │
 ├── controllers/         # API layer
-│   └── global.js
+│   └── global.js        # Axios wrapper with auto-toast
 │
-├── common/              # Utilities
-│   └── index.ts
+├── composables/         # Vue composables
+│   ├── useSprite/       # SVG sprite icon management
+│   └── useTheme/        # Dark/Light mode switching
+│
+├── common/              # Utility functions
+│   └── index.ts         # formatCurrency, formatDate, formatNumber, image(), copy(), randomString()
 │
 ├── lib/                 # TypeScript utilities
-│   └── utils.ts
+│   └── utils.ts         # cn() class merger (clsx + tailwind-merge)
 │
-└── assets/              # Images, fonts
-    ├── fonts/
-    ├── images/
-    │   ├── login/
-    │   ├── dashboard/
+└── assets/              # Images, fonts, icons
+    ├── fonts/           # Inter font (400, 500, 600, 700 weights)
+    ├── images/          # 50+ images per feature
+    │   ├── login/       # Login page images
+    │   ├── dashboard/   # Dashboard images
+    │   ├── platforms/   # Platform images (Facebook, Telegram, WhatsApp, Zalo)
     │   └── ...
-    └── icons/
+    └── icons/           # sprites.svg (37 custom icons)
 ```
 
 ### 2.2 Component File Organization
@@ -877,6 +899,9 @@ localStorage.removeItem("accessToken")
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** 2026-01-03
+**Document Version:** 1.2
+**Last Updated:** 2026-01-27
 **Owner:** Development Team
+**Component Count:** 47 (26 Custom + 21 Shadcn/UI Base)
+**Testing Framework:** Vitest + Playwright E2E
+**Naming Conventions:** snake_case (variables) | camelCase (functions) | PascalCase (components) | SCREAMING_SNAKE_CASE (constants)
