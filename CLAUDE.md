@@ -72,6 +72,59 @@ Khi gặp design phức tạp với effects đặc biệt:
 
 ---
 
+### Documentation Management Workflow
+
+**TỰ ĐỘNG ÁP DỤNG** khi user yêu cầu tạo/cập nhật tài liệu dự án.
+
+**Trigger keywords:** docs, documentation, tài liệu, khởi tạo docs, cập nhật docs
+
+**⚡ ClaudeKit Commands:**
+- `/docs:init` → Khởi tạo 7 files tài liệu chuẩn cho dự án mới
+- `/docs:update` → Cập nhật docs khi có thay đổi codebase
+- Cleanup: `bash .claude/scripts/cleanup-docs.sh`
+
+**📋 7 Files Tài Liệu Chuẩn (BẮT BUỘC):**
+
+Mọi dự án PHẢI có **ĐÚNG 7 files** trong `docs/`:
+
+1. `project-overview-pdr.md` - Product Development Requirements
+2. `code-standards.md` - Coding conventions
+3. `codebase-summary.md` - Codebase structure
+4. `design-guidelines.md` - UI/UX guidelines
+5. `deployment-guide.md` - Deploy instructions
+6. `system-architecture.md` - System design
+7. `project-roadmap.md` - Timeline & milestones
+
+**⚠️ QUY TẮC QUAN TRỌNG:**
+- **KHÔNG** tạo files ngoài 7 files trên
+- **KHÔNG** tạo files SCREAMING_CASE (`BUSINESS_LOGIC_SUMMARY.md`)
+- **KHÔNG** tạo files với timestamp (`REPORT_20260130.md`)
+- **LUÔN** dùng `kebab-case` cho file names
+- **Update**: Edit file có sẵn, KHÔNG tạo file mới
+
+**Quy trình `/docs:init`:**
+
+1. Phân tích codebase (README.md, package.json, src/)
+2. Tạo 7 files với templates chuẩn
+3. Xác nhận với user
+
+**Quy trình `/docs:update`:**
+
+1. Phát hiện thay đổi (git diff, find)
+2. Xác định files cần update
+3. Edit files có sẵn (KHÔNG tạo mới)
+4. Xác nhận với user
+
+**Cleanup định kỳ:**
+
+```bash
+bash .claude/scripts/cleanup-docs.sh
+```
+
+**Chi tiết đầy đủ:** `.claude/workflows/documentation-management.md`
+
+---
+
 ## ⚠️ E2E Testing với Playwright (BẮT BUỘC)
 
 **CRITICAL:** Sau MỖI implementation từ Figma, PHẢI thực hiện E2E testing.
