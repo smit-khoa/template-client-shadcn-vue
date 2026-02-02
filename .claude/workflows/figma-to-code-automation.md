@@ -86,23 +86,23 @@ Workflow này tự động hóa việc chuyển đổi thiết kế Figma thành
 
 **Steps:**
 
-1. **Read Existing Components (PRIORITY ORDER)**
+1. **Read Existing Components (MANDATORY)**
    ```bash
-   # ✅ PRIORITY 1: Scan custom components FIRST
+   # ✅ MANDATORY: ONLY scan and use custom components
    src/components/custom/**/*.vue
      - Button, Input, Checkbox, Icon, Switch
      - Tabs, Dropdown, Drawer, Toast, Tooltip
      - Already styled, full TypeScript support
      - 26 folders với 47 components
 
-   # ⚠️ PRIORITY 2: Only if custom doesn't have equivalent
+   # ❌ FORBIDDEN: DO NOT use ui components
    src/components/ui/**/*.vue
-     - Shadcn primitives (unstyled)
-     - 21 folders với 94 files
-     - Require additional styling
+     - These are INTERNAL ONLY (for building custom components)
+     - NEVER import in pages or features
+     - BANNED from direct usage
    ```
 
-   **CRITICAL:** Check `docs/custom-components-usage.md` for complete usage guide
+   **CRITICAL:** ONLY use `@/components/custom/*` - NO EXCEPTIONS
 
 2. **Analyze Component Capabilities**
    - Read component source code
@@ -123,18 +123,20 @@ Workflow này tự động hóa việc chuyển đổi thiết kế Figma thành
 
 4. **Component Priority Matrix**
 
-   **Step 1: Check Custom Components**
+   **Step 1: Check Custom Components (MANDATORY)**
    ```
-   Figma Button → @/components/custom/button ✅ (Priority 1)
-   Figma Input  → @/components/custom/input  ✅ (Priority 1)
-   Figma Icon   → @/components/custom/icon   ✅ (Priority 1)
+   Figma Button → @/components/custom/button ✅
+   Figma Input  → @/components/custom/input  ✅
+   Figma Icon   → @/components/custom/icon   ✅
    ```
 
-   **Step 2: Check UI Components (if custom không có)**
+   **Step 2: If not in custom → CREATE NEW in custom folder**
    ```
-   Figma Dialog    → @/components/ui/dialog ⚠️ (Priority 2)
-   Figma Accordion → @/components/ui/accordion ⚠️ (Priority 2)
+   Figma Dialog    → CREATE @/components/custom/dialog ✅
+   Figma Accordion → CREATE @/components/custom/accordion ✅
    ```
+
+   **❌ FORBIDDEN:** DO NOT use @/components/ui/* directly
 
    **Step 3: Decision Matrix**
    ```
@@ -242,19 +244,35 @@ Workflow này tự động hóa việc chuyển đổi thiết kế Figma thành
    </style>
    ```
 
-3. **Apply Tailwind Classes**
-   - Use design tokens from Phase 1
+3. **Apply Tailwind Classes (🚨 INLINE ONLY)**
+
+   **CRITICAL:** Tailwind CSS v4 `@apply` **KHÔNG HOẠT ĐỘNG** trong `<style scoped>`. PHẢI dùng inline classes.
+
+   ```vue
+   <!-- ✅ CORRECT - Inline Tailwind classes -->
+   <template>
+     <div class="flex items-center gap-4 p-6 bg-white rounded-2xl shadow-lg">
+       <h1 class="text-2xl font-bold text-neutral-100">Title</h1>
+     </div>
+   </template>
+
+   <!-- ❌ WRONG - @apply trong style scoped (KHÔNG HOẠT ĐỘNG) -->
+   <style scoped>
+   .container { @apply flex items-center; } /* ❌ BROKEN */
+   </style>
+   ```
+
    - Match Figma styles exactly:
-     - Colors → CSS variables or Tailwind colors
-     - Typography → Tailwind text utilities
-     - Spacing → Tailwind spacing scale
-     - Layout → Flexbox/Grid utilities
+     - Colors → Tailwind colors (`bg-primary`, `text-neutral-100`)
+     - Typography → Tailwind text utilities (`text-2xl font-bold`)
+     - Spacing → Tailwind spacing (`p-6 gap-4 mt-2`)
+     - Layout → Flexbox/Grid utilities (`flex items-center`, `grid grid-cols-2`)
 
-4. **Component Import Strategy (CRITICAL)**
+4. **Component Import Strategy (🚨 MANDATORY)**
 
-   **✅ ALWAYS import from custom FIRST:**
+   **✅ ONLY import from custom - NO EXCEPTIONS:**
    ```typescript
-   // Priority 1: Custom components (ALWAYS FIRST)
+   // ✅ CORRECT: ONLY use custom components
    import { Button } from '@/components/custom/button'
    import { Input } from '@/components/custom/input'
    import { Checkbox } from '@/components/custom/checkbox'
@@ -264,22 +282,20 @@ Workflow này tự động hóa việc chuyển đổi thiết kế Figma thành
    import { Dropdown } from '@/components/custom/dropdown'
    import { toast } from 'vue-sonner'  // For Toast notifications
 
-   // Priority 2: UI components (Only if custom doesn't have)
-   import { Dialog } from '@/components/ui/dialog'
-   import { ScrollArea } from '@/components/ui/scroll-area'
-
-   // Priority 3: Create new (Only if no match)
+   // If component doesn't exist in custom → CREATE NEW in custom folder
    import { CustomWidget } from '@/components/custom/custom-widget'
    ```
 
-   **❌ NEVER do this:**
+   **❌ FORBIDDEN - NEVER import from ui:**
    ```typescript
-   // Wrong - Using UI components when custom exists
-   import { Button } from '@/components/ui/button'  // ❌
-   import { Input } from '@/components/ui/input'    // ❌
+   // ❌ BANNED - These imports are FORBIDDEN
+   import { Button } from '@/components/ui/button'     // ❌ BANNED
+   import { Input } from '@/components/ui/input'       // ❌ BANNED
+   import { Dialog } from '@/components/ui/dialog'     // ❌ BANNED
+   import { ScrollArea } from '@/components/ui/scroll-area' // ❌ BANNED
    ```
 
-   **Reference:** See `docs/custom-components-usage.md` for complete guide
+   **Rule:** `src/components/ui/` is INTERNAL ONLY for building custom components. NEVER import directly.
 
 5. **Handle Responsive Design**
    ```vue
@@ -1076,6 +1092,8 @@ flowchart TD
 3. ❌ **Do NOT** skip visual testing
 4. ❌ **Do NOT** proceed if similarity < 95% (iterate or request review)
 5. ❌ **Do NOT** use Options API (only Composition API)
+6. ❌ **🚨 BANNED** import from `@/components/ui/*` - ONLY use `@/components/custom/*`
+7. ❌ **🚨 BANNED** `@apply` trong `<style scoped>` - Tailwind v4 không hỗ trợ, dùng inline classes
 
 ---
 

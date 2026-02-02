@@ -137,38 +137,67 @@ function handleChange(value: string) {
 // components/custom/button/index.ts
 export { default as Button } from './Button.vue'
 
-// Usage in other files
+// ✅ CORRECT - Usage in pages/features
 import { Button } from '@/components/custom/button'
+import { Input } from '@/components/custom/input'
+import { Checkbox } from '@/components/custom/checkbox'
+
+// ❌ FORBIDDEN - NEVER import from ui
+import { Button } from '@/components/ui/button'  // ❌ BANNED
 ```
+
+### 🚨 Component Import Rule (MANDATORY)
+
+**ONLY** import from `@/components/custom/*`. The `src/components/ui/` folder is **INTERNAL ONLY** - used for building custom components, **NEVER** for direct import in pages or features.
 
 ---
 
 ## 🎨 Styling Rules
 
-### Tailwind CSS Only
-```vue
-<!-- ✅ Correct - Tailwind utilities -->
-<div class="flex items-center justify-between p-4 bg-primary-500 text-white rounded-lg">
-  <span class="text-lg font-semibold">Title</span>
-</div>
+### Tailwind CSS v4 - Inline Classes Only
 
-<!-- ❌ Wrong - inline styles -->
+**🚨 CRITICAL:** Tailwind CSS v4 `@apply` **KHÔNG HOẠT ĐỘNG** trong `<style scoped>` của Vue SFC.
+
+```vue
+<!-- ✅ CORRECT - Inline Tailwind classes trong template -->
+<template>
+  <div class="flex items-center justify-between p-4 bg-primary text-white rounded-lg">
+    <span class="text-lg font-semibold">Title</span>
+  </div>
+</template>
+
+<!-- ❌ WRONG - @apply trong <style scoped> (KHÔNG HOẠT ĐỘNG với Tailwind v4) -->
+<style scoped>
+.container {
+  @apply flex items-center p-4; /* ❌ SẼ KHÔNG HOẠT ĐỘNG */
+}
+</style>
+
+<!-- ❌ WRONG - inline styles -->
 <div style="display: flex; padding: 16px; background: #269a85;">
   <span style="font-size: 18px; font-weight: 600;">Title</span>
 </div>
 ```
 
-### CSS Variables
-```vue
-<style scoped>
-.custom-element {
-  /* ✅ Correct - Use CSS variables */
-  color: var(--primary-base);
-  background: var(--neutral-100);
+### Quy tắc Styling (MANDATORY)
 
-  /* ❌ Wrong - hardcoded colors */
-  color: #269a85;
-  background: #1a2229;
+1. **LUÔN** dùng inline Tailwind classes trong `<template>`
+2. **KHÔNG** dùng `@apply` trong `<style scoped>` - nó không hoạt động với Tailwind v4
+3. **KHÔNG** dùng inline styles (`style="..."`)
+4. **CHỈ** dùng `<style scoped>` cho CSS thuần (không Tailwind) như animations, pseudo-elements phức tạp
+
+### CSS Variables (Chỉ khi cần CSS thuần)
+```vue
+<!-- ✅ PREFERRED - Dùng Tailwind color classes -->
+<template>
+  <div class="text-primary bg-neutral-100">Content</div>
+</template>
+
+<!-- ⚠️ ONLY IF NEEDED - CSS thuần cho cases đặc biệt -->
+<style scoped>
+.special-gradient {
+  /* CSS thuần cho gradient phức tạp */
+  background: radial-gradient(ellipse at center, rgba(87, 227, 197, 0.2) 0%, transparent 70%);
 }
 </style>
 ```
@@ -295,16 +324,14 @@ src/
 │   ├── Login.vue
 │   └── Dashboard.vue
 ├── components/
-│   ├── ui/            # Shadcn primitives (21 folders)
-│   │   ├── button/
-│   │   │   ├── Button.vue
-│   │   │   └── index.ts
-│   │   └── input/
-│   │       ├── Input.vue
-│   │       └── index.ts
-│   └── custom/        # Custom components (kebab-case folders)
-│       ├── custom-button/
+│   ├── ui/            # ❌ INTERNAL ONLY - DO NOT IMPORT (Shadcn primitives)
+│   │   └── (Only for building custom components)
+│   └── custom/        # ✅ MANDATORY - ONLY USE THIS (kebab-case folders)
+│       ├── button/
 │       │   ├── Button.vue
+│       │   └── index.ts
+│       ├── input/
+│       │   ├── Input.vue
 │       │   └── index.ts
 │       └── user-card/
 │           ├── UserCard.vue
@@ -678,7 +705,8 @@ Before committing code, ensure:
 - [ ] All constants use `SCREAMING_SNAKE_CASE`
 - [ ] TypeScript strict mode passes (no `any` types)
 - [ ] Composition API (`<script setup>`) used
-- [ ] Tailwind CSS only (no inline styles)
+- [ ] Tailwind CSS inline classes only (NO `@apply` trong `<style scoped>`)
+- [ ] **🚨 ONLY imports from `@/components/custom/*` (NO `@/components/ui/*`)**
 - [ ] Existing components reused where possible
 - [ ] Tests pass (`npm run test`)
 - [ ] Build succeeds (`npm run build`)

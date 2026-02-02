@@ -145,14 +145,14 @@ Available skills:
 - Vitest + Playwright (testing)
 
 **Component System:**
-- **ALWAYS USE:** `src/components/custom/` (26 folders - PRIORITY FIRST)
+- **🚨 MANDATORY:** `src/components/custom/` (26 folders - ONLY USE THIS)
   - Button, Input, Checkbox, Icon, Switch, Tabs, Dropdown, Toast, etc.
   - Already customized for project with proper styling
   - Full TypeScript support with clear props interface
-- **ONLY IF NEEDED:** `src/components/ui/` (21 folders - Shadcn primitives)
-  - Use only when custom components don't have equivalent
-  - Unstyled, require additional styling
-- **RULE:** Custom components > UI components > Create new
+- **❌ FORBIDDEN:** `src/components/ui/` (Shadcn primitives - DO NOT USE)
+  - These are base primitives only for building custom components
+  - NEVER import directly in pages or features
+- **RULE:** ONLY use `@/components/custom/*` - NO EXCEPTIONS
 
 **Design Tokens:**
 - Primary: `#269a85` (teal)
@@ -160,17 +160,26 @@ Available skills:
 - Tertiary: `#2eb9a0`
 - Font: Inter (400, 500, 600, 700)
 
+**🚨 Styling Rule (Tailwind CSS v4):**
+- **MANDATORY:** Dùng **inline Tailwind classes** trong `<template>`
+- **FORBIDDEN:** `@apply` trong `<style scoped>` - KHÔNG hoạt động với Tailwind v4
+- **FORBIDDEN:** Inline styles (`style="..."`)
+- **ONLY IF NEEDED:** `<style scoped>` cho CSS thuần (gradients, animations)
+
 ## 🚨 Critical Rules
 
-1. **COMPONENT PRIORITY** - ALWAYS import from `@/components/custom` first
+1. **🚨 COMPONENT RULE (MANDATORY)** - ONLY import from `@/components/custom`
    ```typescript
-   // ✅ Correct
+   // ✅ CORRECT - Only use custom components
    import { Button } from '@/components/custom/button'
    import { Input } from '@/components/custom/input'
+   import { Checkbox } from '@/components/custom/checkbox'
 
-   // ❌ Wrong
-   import { Button } from '@/components/ui/button'
+   // ❌ FORBIDDEN - NEVER use ui components
+   import { Button } from '@/components/ui/button'  // ❌ BANNED
+   import { Input } from '@/components/ui/input'    // ❌ BANNED
    ```
+   **Note:** `src/components/ui/` is ONLY for building custom components internally. NEVER import in pages/features.
 
 2. **NEVER** skip the Figma-to-Code workflow when receiving design links
 
