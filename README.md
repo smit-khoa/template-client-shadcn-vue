@@ -173,22 +173,46 @@ AI sẽ tự động:
 
 ## 🎨 Component Library
 
-### UI Components (21 folders)
-- Button, Input, Checkbox, Switch
-- Dialog, Dropdown, Drawer, Sheet
-- Tabs, Accordion, Pagination
-- Tooltip, Spinner, Skeleton
-- và 8 components khác
+### ⭐ Custom Components (PRIORITY - ALWAYS USE FIRST)
 
-### Custom Components (26 folders)
-- **Button** - 7 variants, 5 sizes, loading, icons
-- **Input** - Text, password, currency, icons
-- **Table (LayoutTable)** - 4137 lines! Advanced data grid
-- **Icon** - SVG sprite với gradient support
-- **Checkbox, Switch, Dropdown, Toast**
-- và 18 components khác
+**Location:** `src/components/custom/` (26 folders, 47 files)
+
+**Core Components:**
+- **Button** - 7 variants (primary, secondary, danger, etc.), 5 sizes, loading states, icons, tooltips
+- **Input** - Text, password, currency types với icon support, validation, error states
+- **Checkbox** - Checkbox & radio với custom styling
+- **Icon** - 94 SVG icons từ sprite, gradient support
+- **Switch** - Toggle switch component
+- **Tabs** - Tab navigation
+- **Dropdown** - Dropdown menu
+- **Toast** - Notifications (via vue-sonner)
+- **Tooltip** - Hover tooltips
+- **Table (LayoutTable)** - 4137 lines! Advanced data grid với frozen columns
+
+**Usage:**
+```typescript
+// ✅ ALWAYS import from custom
+import { Button } from '@/components/custom/button'
+import { Input } from '@/components/custom/input'
+import { Icon } from '@/components/custom/icon'
+```
+
+📖 **Complete Guide:** [Custom Components Usage](./docs/custom-components-usage.md)
+
+### UI Components (Shadcn Primitives - Only if custom doesn't have)
+
+**Location:** `src/components/ui/` (21 folders, 94 files)
+
+**When to use:** Only when custom components don't have equivalent
+
+- Dialog, Alert Dialog, Scroll Area, Skeleton, etc.
 
 **Total:** 141 component files
+
+**Component Priority:**
+```
+Custom Components > UI Components > Create New
+```
 
 📖 **Chi tiết:** [Component Library](./docs/component-library.md)
 

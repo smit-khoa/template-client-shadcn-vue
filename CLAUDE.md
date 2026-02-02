@@ -66,16 +66,53 @@ docs/
 5. Create new components ONLY if no existing match
 6. Follow naming conventions strictly
 
-### Step 4: Visual Testing
-1. Run development server
-2. Use Playwright to capture screenshots
-3. Compare with Figma design
-4. Calculate visual similarity score
+### Step 4: E2E + Visual Testing (MANDATORY - CANNOT SKIP)
+**🚨 CRITICAL: This step is NON-NEGOTIABLE and CANNOT be skipped under ANY circumstances**
 
-### Step 5: Iteration
-1. If similarity < 95% → Adjust code and repeat Step 3-4
-2. If similarity >= 95% → Mark as complete
-3. Maximum 3 iterations before requesting human review
+1. Generate E2E test file in `e2e/tests/[component-name].spec.ts`
+2. Start development server if not running
+3. Run Playwright E2E tests (logic + visual)
+4. Capture screenshots and compare with Figma design
+5. Validate BOTH criteria:
+   - Logic tests: 100% pass rate (all tests must pass)
+   - Visual similarity: >= 95% (pixel-perfect match required)
+
+**Testing tools:**
+- `FigmaTestHelper` - Complete testing framework
+- `testVisualRegression()` - Visual comparison utilities
+- Playwright E2E - Full browser automation
+
+**If tests fail:** MUST proceed to Step 5 (cannot skip)
+
+### Step 5: Auto-Iteration Until Pass (MANDATORY IF TESTS FAIL)
+**🚨 CRITICAL: Auto-iteration MUST execute if tests fail in Step 4**
+
+1. **Logic tests failed:**
+   - Analyze logic errors from test output
+   - Generate fixes for component interactions
+   - Apply fixes to code
+   - Re-run tests (back to Step 4)
+
+2. **Visual tests failed (< 95% similarity):**
+   - Analyze visual diff images
+   - Generate fixes for spacing, colors, typography
+   - Apply Tailwind CSS adjustments
+   - Re-run tests (back to Step 4)
+
+3. **Iteration loop:**
+   - Maximum 3 iterations allowed
+   - MUST attempt fixes each iteration
+   - CANNOT skip iterations
+   - If max iterations reached → Request human review
+
+**Loop structure:**
+```typescript
+while (iteration < 3) {
+  if (logic_passed && visual >= 95%) break
+  apply_fixes()
+  rerun_tests()
+}
+```
 
 **Activation:** Use skill `/design:figma <figma-url>` to trigger this workflow.
 
@@ -108,9 +145,14 @@ Available skills:
 - Vitest + Playwright (testing)
 
 **Component System:**
-- UI Components: `src/components/ui/` (21 folders - Shadcn primitives)
-- Custom Components: `src/components/custom/` (26 folders - project-specific)
-- Priority: Always use existing components before creating new ones
+- **ALWAYS USE:** `src/components/custom/` (26 folders - PRIORITY FIRST)
+  - Button, Input, Checkbox, Icon, Switch, Tabs, Dropdown, Toast, etc.
+  - Already customized for project with proper styling
+  - Full TypeScript support with clear props interface
+- **ONLY IF NEEDED:** `src/components/ui/` (21 folders - Shadcn primitives)
+  - Use only when custom components don't have equivalent
+  - Unstyled, require additional styling
+- **RULE:** Custom components > UI components > Create new
 
 **Design Tokens:**
 - Primary: `#269a85` (teal)
@@ -120,13 +162,59 @@ Available skills:
 
 ## 🚨 Critical Rules
 
-1. **NEVER** skip the Figma-to-Code workflow when receiving design links
-2. **ALWAYS** use existing components if similarity exists (even 70%+ match)
-3. **MUST** perform visual testing after code generation
-4. **REQUIRED** to iterate until visual similarity >= 95%
-5. **MANDATORY** to document in `./docs/` only (not in project root or other folders)
-6. **IMPORTANT** Read `./README.md` before any implementation
-7. **CRITICAL** Follow workflows in `./.claude/workflows/*`
+1. **COMPONENT PRIORITY** - ALWAYS import from `@/components/custom` first
+   ```typescript
+   // ✅ Correct
+   import { Button } from '@/components/custom/button'
+   import { Input } from '@/components/custom/input'
+
+   // ❌ Wrong
+   import { Button } from '@/components/ui/button'
+   ```
+
+2. **NEVER** skip the Figma-to-Code workflow when receiving design links
+
+3. **ALWAYS** use existing components if similarity exists (even 70%+ match)
+
+4. **🚨 TESTING ENFORCEMENT (NON-NEGOTIABLE):**
+   - Step 4 (E2E + Visual Testing) **CANNOT BE SKIPPED** under ANY circumstances
+   - Step 5 (Auto-iteration) **MUST EXECUTE** if tests fail
+   - **MUST** iterate until tests pass OR max 3 iterations reached
+   - **CANNOT** proceed to success without passing tests
+   - **FORBIDDEN** to skip testing phases
+
+5. **Testing Requirements:**
+   - Logic tests: **100% pass rate** (mandatory)
+   - Visual similarity: **>= 95%** (mandatory)
+   - E2E test file: **MUST be generated** in Phase 4
+   - Auto-iteration: **MUST attempt** if tests fail
+
+6. **Workflow Sequence (MANDATORY):**
+   ```
+   Phase 3 (Code) → Phase 4 (Test) → Phase 5 (Iterate) → Success/Review
+                         ↓                 ↓
+                    MANDATORY        MANDATORY IF FAIL
+   ```
+
+7. **MANDATORY** to document in `./docs/` only (not in project root or other folders)
+
+8. **IMPORTANT** Read `./README.md` before any implementation
+
+9. **CRITICAL** Follow workflows in `./.claude/workflows/*`
+
+**Validation Checkpoints:**
+- ✅ After Phase 3: "Did you generate E2E test file?"
+- ✅ After Phase 4: "Did you run E2E + Visual tests?"
+- ✅ After Phase 4: "Did logic tests pass 100%?"
+- ✅ After Phase 4: "Did visual reach >= 95%?"
+- ✅ If any NO: "Did you execute Phase 5 auto-iteration?"
+
+**If AI attempts to skip testing:**
+```
+🚨 CRITICAL VIOLATION: Testing cannot be skipped.
+This is a non-negotiable workflow requirement.
+MUST execute Phase 4 → Phase 5 sequence.
+```
 
 ## 📖 Documentation Management
 

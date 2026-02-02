@@ -86,12 +86,23 @@ Workflow này tự động hóa việc chuyển đổi thiết kế Figma thành
 
 **Steps:**
 
-1. **Read Existing Components**
+1. **Read Existing Components (PRIORITY ORDER)**
    ```bash
-   # Scan component directories
-   src/components/ui/**/*.vue       # Shadcn primitives
-   src/components/custom/**/*.vue   # Custom components
+   # ✅ PRIORITY 1: Scan custom components FIRST
+   src/components/custom/**/*.vue
+     - Button, Input, Checkbox, Icon, Switch
+     - Tabs, Dropdown, Drawer, Toast, Tooltip
+     - Already styled, full TypeScript support
+     - 26 folders với 47 components
+
+   # ⚠️ PRIORITY 2: Only if custom doesn't have equivalent
+   src/components/ui/**/*.vue
+     - Shadcn primitives (unstyled)
+     - 21 folders với 94 files
+     - Require additional styling
    ```
+
+   **CRITICAL:** Check `docs/custom-components-usage.md` for complete usage guide
 
 2. **Analyze Component Capabilities**
    - Read component source code
@@ -110,12 +121,38 @@ Workflow này tự động hóa việc chuyển đổi thiết kế Figma thành
    }
    ```
 
-4. **Decision Matrix**
+4. **Component Priority Matrix**
+
+   **Step 1: Check Custom Components**
+   ```
+   Figma Button → @/components/custom/button ✅ (Priority 1)
+   Figma Input  → @/components/custom/input  ✅ (Priority 1)
+   Figma Icon   → @/components/custom/icon   ✅ (Priority 1)
+   ```
+
+   **Step 2: Check UI Components (if custom không có)**
+   ```
+   Figma Dialog    → @/components/ui/dialog ⚠️ (Priority 2)
+   Figma Accordion → @/components/ui/accordion ⚠️ (Priority 2)
+   ```
+
+   **Step 3: Decision Matrix**
    ```
    Match >= 90% → Use existing component as-is
    Match 70-89% → Use with minor customization
    Match 50-69% → Consider creating variant
    Match < 50%  → Create new component
+   ```
+
+   **Common Mappings:**
+   ```
+   Figma Button      → Button (custom) - 95% match
+   Figma Text Input  → Input (custom) - 95% match
+   Figma Checkbox    → Checkbox (custom) - 95% match
+   Figma Toggle      → Switch (custom) - 95% match
+   Figma Icon        → Icon (custom) - 100% match
+   Figma Dropdown    → Dropdown (custom) - 90% match
+   Figma Tab         → Tabs (custom) - 90% match
    ```
 
 5. **Generate Component Mapping Report**
@@ -213,18 +250,36 @@ Workflow này tự động hóa việc chuyển đổi thiết kế Figma thành
      - Spacing → Tailwind spacing scale
      - Layout → Flexbox/Grid utilities
 
-4. **Component Import Strategy**
+4. **Component Import Strategy (CRITICAL)**
+
+   **✅ ALWAYS import from custom FIRST:**
    ```typescript
-   // Priority 1: Use existing UI components
+   // Priority 1: Custom components (ALWAYS FIRST)
    import { Button } from '@/components/custom/button'
    import { Input } from '@/components/custom/input'
+   import { Checkbox } from '@/components/custom/checkbox'
+   import { Icon } from '@/components/custom/icon'
+   import { Switch } from '@/components/custom/switch'
+   import { Tabs } from '@/components/custom/tabs'
+   import { Dropdown } from '@/components/custom/dropdown'
+   import { toast } from 'vue-sonner'  // For Toast notifications
 
-   // Priority 2: Use Shadcn primitives
+   // Priority 2: UI components (Only if custom doesn't have)
    import { Dialog } from '@/components/ui/dialog'
+   import { ScrollArea } from '@/components/ui/scroll-area'
 
-   // Priority 3: Create new (only if necessary)
+   // Priority 3: Create new (Only if no match)
    import { CustomWidget } from '@/components/custom/custom-widget'
    ```
+
+   **❌ NEVER do this:**
+   ```typescript
+   // Wrong - Using UI components when custom exists
+   import { Button } from '@/components/ui/button'  // ❌
+   import { Input } from '@/components/ui/input'    // ❌
+   ```
+
+   **Reference:** See `docs/custom-components-usage.md` for complete guide
 
 5. **Handle Responsive Design**
    ```vue
@@ -256,174 +311,555 @@ Workflow này tự động hóa việc chuyển đổi thiết kế Figma thành
 
 ---
 
-### 🧪 PHASE 4: Visual Testing
+### 🧪 PHASE 4: E2E + Visual Testing
 
-**Objective:** Verify code matches Figma design exactly
+**Objective:** Test cả logic và visual để verify code hoàn toàn khớp Figma design
+
+**Approach:** Sử dụng Playwright E2E testing framework với visual regression testing
 
 **Steps:**
 
-1. **Start Development Server**
-   ```bash
-   npm run dev
-   # Server runs on https://localhost:8309
-   ```
+#### 1. Generate E2E Test File
 
-2. **Setup Playwright Test**
-   ```typescript
-   import { test, expect } from '@playwright/test'
+Tạo test file tự động trong `e2e/tests/` sử dụng Figma Test Helper:
 
-   test('visual regression - [Component Name]', async ({ page }) => {
-     // Navigate to component
-     await page.goto('https://localhost:8309/path-to-component')
+```typescript
+// e2e/tests/[component-name].spec.ts
+import { test, expect } from '@playwright/test'
+import { createFigmaTest } from '../utils/figma-test-helper'
 
-     // Wait for rendering
-     await page.waitForLoadState('networkidle')
+const FIGMA_CONFIG = {
+  figma_url: '[Figma URL]',
+  figma_screenshot_url: '[Screenshot URL from Phase 1]',
+  page_route: '/[route]',
+  test_name: '[component-name]'
+}
 
-     // Take screenshot
-     const screenshot = await page.screenshot({
-       fullPage: true,
-       animations: 'disabled'
-     })
+test.describe('[Component] - E2E + Visual Testing', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto(FIGMA_CONFIG.page_route, { waitUntil: 'networkidle' })
+  })
 
-     // Compare with Figma screenshot
-     expect(screenshot).toMatchSnapshot('figma-design.png', {
-       threshold: 0.05  // 95% similarity
-     })
-   })
-   ```
+  test('✅ Complete: Logic + Visual', async ({ page }) => {
+    const helper = createFigmaTest(page, FIGMA_CONFIG)
 
-3. **Capture Screenshots**
-   - Generated code output
-   - Figma design reference
-   - Save both for comparison
+    const result = await helper.runFigmaTest({
+      logic_tests: [
+        // Auto-generated logic tests
+      ],
+      visual_options: {
+        threshold: 0.05,
+        full_page: true
+      }
+    })
 
-4. **Visual Comparison**
-   ```typescript
-   import pixelmatch from 'pixelmatch'
-   import { PNG } from 'pngjs'
+    expect(result.logic_passed).toBe(true)
+    expect(result.visual_result?.passed).toBe(true)
+  })
+})
+```
 
-   function compareImages(img1: Buffer, img2: Buffer): number {
-     const png1 = PNG.sync.read(img1)
-     const png2 = PNG.sync.read(img2)
+#### 2. Auto-generate Logic Tests
 
-     const { width, height } = png1
-     const diff = new PNG({ width, height })
+Based on Figma components từ Phase 2, generate logic tests:
 
-     const mismatch = pixelmatch(
-       png1.data,
-       png2.data,
-       diff.data,
-       width,
-       height,
-       { threshold: 0.1 }
-     )
+```typescript
+const logic_tests = [
+  // Test 1: Component visibility & interactions
+  async () => {
+    await helper.testComponents([
+      {
+        selector: 'button.primary',
+        name: 'Primary Button',
+        tests: {
+          visible: true,
+          enabled: true,
+          clickable: true,
+          has_hover_state: true
+        }
+      },
+      {
+        selector: 'input[type="email"]',
+        name: 'Email Input',
+        tests: {
+          visible: true,
+          enabled: true
+        }
+      }
+      // ... more components
+    ])
+  },
 
-     const similarity = ((width * height - mismatch) / (width * height)) * 100
-     return similarity
-   }
-   ```
+  // Test 2: Form functionality (if applicable)
+  async () => {
+    await helper.testForm({
+      inputs: [
+        { selector: 'input[type="email"]', value: 'test@example.com' },
+        { selector: 'input[type="password"]', value: 'password123' }
+      ],
+      submit_button: 'button[type="submit"]'
+    })
+  },
 
-5. **Generate Test Report**
-   ```typescript
-   {
-     similarity_score: 97.5,  // percentage
-     passed: true,            // >= 95%
-     differences: [
-       {
-         element: '.button',
-         issue: 'Color mismatch',
-         expected: '#269a85',
-         actual: '#269a86'
-       }
-     ],
-     screenshot_diff: 'path/to/diff.png'
-   }
-   ```
+  // Test 3: Navigation (if applicable)
+  async () => {
+    await helper.testNavigation([
+      { selector: 'a.nav-link' }
+    ])
+  },
+
+  // Test 4: Responsive design
+  async () => {
+    await helper.testResponsive([
+      { width: 1920, height: 1080, name: 'Desktop' },
+      { width: 768, height: 1024, name: 'Tablet' },
+      { width: 375, height: 667, name: 'Mobile' }
+    ])
+  },
+
+  // Test 5: Accessibility
+  async () => {
+    await helper.testAccessibility()
+  },
+
+  // Test 6: No console errors
+  async () => {
+    const errors: string[] = []
+    page.on('pageerror', err => errors.push(err.message))
+
+    // Interact with page
+    await page.locator('button').first().click()
+    await page.waitForTimeout(1000)
+
+    expect(errors.length).toBe(0)
+  }
+]
+```
+
+#### 3. Run E2E Test Suite
+
+```bash
+# Auto-run dev server + Playwright tests
+npx playwright test e2e/tests/[component-name].spec.ts
+
+# With UI mode for debugging
+npx playwright test --ui
+
+# Generate HTML report
+npx playwright test --reporter=html
+```
+
+#### 4. Visual Comparison Workflow
+
+```typescript
+// Tự động trong helper.runFigmaTest()
+
+// 4a. Setup Figma baseline
+const baseline_path = await helper.setupBaseline()
+// Downloads Figma screenshot to e2e/screenshots/baselines/
+
+// 4b. Capture current screenshot
+await captureScreenshot(page, current_screenshot_path, {
+  full_page: true,
+  mask_selectors: ['.loading-spinner'] // Mask dynamic elements
+})
+
+// 4c. Compare screenshots
+const result = await compareScreenshots(
+  baseline_path,
+  current_screenshot_path,
+  diff_output_path,
+  { threshold: 0.05 }
+)
+
+// 4d. Calculate similarity score
+const similarity = result.similarity_score // percentage
+const passed = similarity >= 95
+```
+
+#### 5. Generate Comprehensive Test Report
+
+```typescript
+const report = {
+  test_name: '[component-name]',
+  timestamp: new Date().toISOString(),
+
+  // Logic testing results
+  logic: {
+    passed: true,
+    tests_run: 6,
+    tests_passed: 6,
+    tests_failed: 0
+  },
+
+  // Visual testing results
+  visual: {
+    passed: true,
+    similarity_score: 97.8,
+    threshold: 95.0,
+    diff_pixels: 2341,
+    total_pixels: 1920 * 1080,
+    diff_image: 'e2e/screenshots/diff/component-diff.png'
+  },
+
+  // Performance metrics
+  performance: {
+    fcp: 1250, // ms
+    lcp: 2100, // ms
+    cls: 0.02
+  },
+
+  // Accessibility
+  accessibility: {
+    missing_alt_texts: 0,
+    missing_labels: 0,
+    issues: []
+  },
+
+  // Overall status
+  status: 'PASSED',
+  summary: 'All tests passed. Visual similarity: 97.8%'
+}
+
+// Save report
+fs.writeFileSync(
+  `e2e/reports/${component_name}-report.md`,
+  generateMarkdownReport(report)
+)
+```
+
+#### 6. Automated Test Artifacts
+
+Tests automatically generate:
+
+```
+e2e/
+├── screenshots/
+│   ├── baselines/
+│   │   └── component-figma.png        # Figma design (baseline)
+│   ├── current/
+│   │   └── component.png               # Generated code screenshot
+│   └── diff/
+│       └── component-diff.png          # Highlighted differences
+├── reports/
+│   ├── html/
+│   │   └── index.html                  # Playwright HTML report
+│   ├── component-report.md             # Test report markdown
+│   └── test-results.json               # JSON results
+└── videos/ (if tests fail)
+    └── component-chromium.webm
+```
 
 **Output:**
 ```typescript
 {
-  test_passed: boolean
-  similarity_score: number
-  issues: Array<{
-    location: string
-    description: string
-    fix_suggestion: string
-  }>
+  // Logic testing
+  logic_passed: boolean
+  logic_tests: {
+    total: number
+    passed: number
+    failed: number
+    duration_ms: number
+  }
+
+  // Visual testing
+  visual_result: {
+    passed: boolean
+    similarity_score: number  // 0-100%
+    threshold: 95
+    diff_pixels: number
+    total_pixels: number
+    diff_image_path: string
+  }
+
+  // Combined status
+  overall_passed: boolean  // logic AND visual must pass
+
+  // Reports
+  report_path: string
   screenshots: {
-    figma: string
-    generated: string
+    baseline: string
+    current: string
     diff: string
   }
 }
 ```
 
+**Pass Criteria:**
+```
+✅ Logic tests: 100% pass rate
+✅ Visual similarity: >= 95%
+✅ No console errors
+✅ Responsive: All breakpoints work
+✅ Accessibility: No critical issues
+✅ Performance: FCP < 2s, LCP < 4s
+```
+
+**Failure Scenarios:**
+```
+❌ Logic test failed → Fix code, re-run Phase 3
+❌ Visual < 95% → Proceed to Phase 5 (Iteration)
+❌ Console errors → Debug and fix issues
+❌ Responsive breaks → Adjust Tailwind classes
+❌ Performance issues → Optimize assets/code
+```
+
 ---
 
-### 🔁 PHASE 5: Iteration & Refinement
+### 🔁 PHASE 5: Iteration & Refinement (AUTO-LOOP UNTIL PASS)
 
-**Objective:** Achieve 95%+ visual similarity
+**Objective:** Achieve 100% logic pass + 95%+ visual similarity
+
+**🚨 CRITICAL:** This phase CANNOT be skipped. Must loop until pass criteria met.
+
+**Pass Criteria:**
+```typescript
+const PASS_CRITERIA = {
+  logic_tests: 100,        // 100% pass rate (MANDATORY)
+  visual_similarity: 95,   // >= 95% similarity (MANDATORY)
+  max_iterations: 3        // Maximum attempts before human review
+}
+```
 
 **Decision Tree:**
 
 ```
-similarity >= 95%
-  ├─ YES → ✅ DONE
-  └─ NO  → Continue iteration
+Start Iteration Loop
+  ↓
+Check Pass Criteria:
+  ├─ Logic Tests Pass? (100%)
+  │   ├─ NO → Fix code → Go to Phase 3
+  │   └─ YES → Continue
+  │
+  ├─ Visual Similarity >= 95%?
+  │   ├─ NO → Analyze & Fix → Go to Phase 4
+  │   └─ YES → Continue
+  │
+  ├─ Both Pass?
+  │   ├─ YES → ✅ DONE
+  │   └─ NO → Continue iteration
+  │
+  └─ Iterations > MAX?
+      ├─ YES → ⚠️ STOP & Request Human Review
+      └─ NO → Continue Loop
+```
+
+**Automated Loop Logic:**
+
+```typescript
+async function autoIterateUntilPass() {
+  let iteration = 0
+  const MAX_ITERATIONS = 3
+
+  while (iteration < MAX_ITERATIONS) {
+    iteration++
+    console.log(`🔄 Iteration ${iteration}/${MAX_ITERATIONS}`)
+
+    // Phase 4: Run E2E + Visual Testing
+    const test_result = await runE2EAndVisualTests()
+
+    // Check logic tests
+    if (!test_result.logic_passed) {
+      console.log('❌ Logic tests failed')
+      await fixLogicIssues(test_result.logic_errors)
+      continue  // Back to Phase 3 → Phase 4
+    }
+
+    // Check visual similarity
+    if (test_result.visual_similarity < 95) {
+      console.log(`❌ Visual similarity: ${test_result.visual_similarity}%`)
+      await fixVisualIssues(test_result.visual_diff)
+      continue  // Back to Phase 3 → Phase 4
+    }
+
+    // Both pass!
+    console.log('✅ All tests passed!')
+    return {
+      status: 'success',
+      iterations: iteration,
+      final_similarity: test_result.visual_similarity
+    }
+  }
+
+  // Max iterations reached
+  console.log('⚠️ Max iterations reached. Human review required.')
+  return {
+    status: 'needs_review',
+    iterations: iteration,
+    reason: 'Max iterations exceeded'
+  }
+}
 ```
 
 **Steps:**
 
-1. **Analyze Differences**
-   - Parse test report from Phase 4
-   - Identify specific mismatches:
-     - Color variations
-     - Spacing issues
-     - Typography differences
-     - Layout shifts
-     - Missing elements
+#### 1. Check Test Results
 
-2. **Generate Fix Strategy**
-   ```typescript
-   issues.forEach(issue => {
-     switch (issue.type) {
-       case 'color':
-         // Update CSS variable or Tailwind class
-         break
-       case 'spacing':
-         // Adjust padding/margin
-         break
-       case 'typography':
-         // Update font-size/weight/family
-         break
-       case 'layout':
-         // Fix flexbox/grid properties
-         break
-     }
-   })
-   ```
+```typescript
+// Từ Phase 4
+const test_result = {
+  logic: {
+    passed: boolean,
+    total: number,
+    failed: number,
+    errors: Array<{
+      test: string,
+      error: string,
+      selector: string
+    }>
+  },
+  visual: {
+    similarity: number,
+    passed: boolean,
+    diff_pixels: number,
+    issues: Array<{
+      type: 'color' | 'spacing' | 'typography' | 'layout',
+      element: string,
+      expected: string,
+      actual: string
+    }>
+  }
+}
+```
 
-3. **Apply Fixes**
-   - Edit Vue component
-   - Update Tailwind classes
-   - Adjust CSS variables
-   - Modify component props
+#### 2. Fix Logic Issues (if failed)
 
-4. **Re-run Visual Test**
-   - Repeat Phase 4
-   - Compare new similarity score
-   - Check if issues resolved
+**Priority:** Fix logic before visual
 
-5. **Iteration Limit**
-   ```typescript
-   const MAX_ITERATIONS = 3
+```typescript
+async function fixLogicIssues(errors) {
+  for (const error of errors) {
+    switch (error.type) {
+      case 'element_not_found':
+        // Add missing element
+        await addElement(error.selector, error.expected_props)
+        break
 
-   if (iteration_count > MAX_ITERATIONS) {
-     // Request human review
-     console.log('⚠️ Manual review needed')
-     generateHumanReviewReport()
-   }
-   ```
+      case 'interaction_failed':
+        // Fix event handlers
+        await fixEventHandler(error.selector, error.event)
+        break
+
+      case 'validation_failed':
+        // Fix validation logic
+        await fixValidation(error.field, error.rule)
+        break
+
+      case 'console_error':
+        // Debug and fix JavaScript errors
+        await debugConsoleError(error.message)
+        break
+    }
+  }
+
+  // Save changes
+  await saveFile(component_file)
+
+  // Re-run Phase 4
+  console.log('🔄 Re-running tests after logic fixes...')
+}
+```
+
+#### 3. Fix Visual Issues (if similarity < 95%)
+
+```typescript
+async function fixVisualIssues(issues) {
+  for (const issue of issues) {
+    switch (issue.type) {
+      case 'color':
+        // Fix color mismatch
+        await updateColor(issue.element, issue.expected)
+        // Example: bg-primary-500 → bg-primary-600
+        break
+
+      case 'spacing':
+        // Fix padding/margin
+        await updateSpacing(issue.element, issue.expected)
+        // Example: px-4 → px-6, mt-2 → mt-4
+        break
+
+      case 'typography':
+        // Fix font properties
+        await updateTypography(issue.element, issue.expected)
+        // Example: text-base → text-lg, font-medium → font-semibold
+        break
+
+      case 'layout':
+        // Fix layout properties
+        await updateLayout(issue.element, issue.expected)
+        // Example: flex-row → flex-col, gap-2 → gap-4
+        break
+
+      case 'size':
+        // Fix width/height
+        await updateSize(issue.element, issue.expected)
+        // Example: w-32 → w-40, h-10 → h-12
+        break
+    }
+  }
+
+  // Save changes
+  await saveFile(component_file)
+
+  // Re-run Phase 4
+  console.log('🔄 Re-running tests after visual fixes...')
+}
+```
+
+#### 4. Iteration Tracking
+
+```typescript
+const iteration_report = {
+  iteration: number,
+  timestamp: string,
+
+  before: {
+    logic_pass_rate: number,
+    visual_similarity: number
+  },
+
+  fixes_applied: Array<{
+    type: string,
+    description: string,
+    file: string,
+    line: number
+  }>,
+
+  after: {
+    logic_pass_rate: number,
+    visual_similarity: number
+  },
+
+  improvement: {
+    logic: number,      // percentage improvement
+    visual: number      // percentage improvement
+  }
+}
+```
+
+#### 5. Stop Conditions
+
+**✅ Success (Exit Loop):**
+```typescript
+if (logic_passed && visual_similarity >= 95) {
+  return { status: 'success' }
+}
+```
+
+**⚠️ Max Iterations (Stop & Request Review):**
+```typescript
+if (iteration > MAX_ITERATIONS) {
+  return {
+    status: 'needs_review',
+    reason: 'Max iterations exceeded',
+    last_result: {
+      logic_passed,
+      visual_similarity
+    },
+    suggestions: generateHumanReviewSuggestions()
+  }
+}
+```
 
 6. **Generate Final Report**
    ```markdown
@@ -455,6 +891,136 @@ similarity >= 95%
   time_elapsed: string
 }
 ```
+
+---
+
+## 🛡️ Workflow Enforcement & Validation
+
+**🚨 CRITICAL RULES - CANNOT BE SKIPPED:**
+
+### Rule 1: E2E Testing is MANDATORY
+
+```typescript
+// ❌ FORBIDDEN - Skip testing
+if (skip_visual_test) {
+  throw new Error('E2E testing CANNOT be skipped')
+}
+
+// ✅ REQUIRED - Must run tests
+await runE2EAndVisualTests()  // MANDATORY
+```
+
+### Rule 2: Must Pass BOTH Logic AND Visual
+
+```typescript
+const pass_criteria = {
+  logic_tests: {
+    pass_rate: 100,           // Must be 100%
+    required: true            // MANDATORY
+  },
+  visual_similarity: {
+    minimum: 95,              // Must be >= 95%
+    required: true            // MANDATORY
+  }
+}
+
+// ❌ Cannot proceed if either fails
+if (!logic_passed || visual_similarity < 95) {
+  // MUST iterate (Phase 5)
+  await autoIterateUntilPass()
+}
+```
+
+### Rule 3: Auto-Loop Until Pass (Max 3 iterations)
+
+```typescript
+let iteration = 0
+const MAX_ITERATIONS = 3
+
+while (!allTestsPass() && iteration < MAX_ITERATIONS) {
+  iteration++
+
+  // Fix issues
+  await fixIssues()
+
+  // Re-test
+  await runTests()
+}
+
+// If still not pass after 3 iterations
+if (!allTestsPass()) {
+  throw new Error('⚠️ STOP: Human review required')
+}
+```
+
+### Validation Checkpoints
+
+**Checkpoint 1: After Phase 3 (Code Generation)**
+```typescript
+✅ Check: Files created?
+✅ Check: Imports correct (from @/components/custom)?
+✅ Check: TypeScript compiles?
+✅ Check: No syntax errors?
+
+if (any_fail) {
+  → Back to Phase 3
+}
+```
+
+**Checkpoint 2: After Phase 4 (E2E Testing)**
+```typescript
+✅ Check: Tests executed?
+✅ Check: Logic tests passed 100%?
+✅ Check: Visual similarity >= 95%?
+
+if (any_fail) {
+  → Phase 5 (Iteration)
+}
+```
+
+**Checkpoint 3: After Phase 5 (Iteration)**
+```typescript
+✅ Check: Issues fixed?
+✅ Check: Re-tests passed?
+✅ Check: Iterations < MAX?
+
+if (all_pass) {
+  → ✅ DONE
+else if (iterations >= MAX) {
+  → ⚠️ STOP (Human Review)
+else
+  → Back to Phase 4
+}
+```
+
+### Error Handling Matrix
+
+| Error Type | Action | Go To |
+|------------|--------|-------|
+| Syntax Error | Fix code | Phase 3 |
+| Import Error | Fix imports | Phase 3 |
+| TypeScript Error | Fix types | Phase 3 |
+| Logic Test Fail | Fix logic | Phase 3 → Phase 4 |
+| Visual < 95% | Fix styling | Phase 3 → Phase 4 |
+| Max Iterations | Stop & Report | Human Review |
+
+### Forbidden Actions
+
+**❌ NEVER DO:**
+1. Skip E2E testing
+2. Skip visual testing
+3. Proceed when logic tests fail
+4. Proceed when visual < 95%
+5. Skip iteration when tests fail
+6. Continue beyond MAX_ITERATIONS
+
+**✅ ALWAYS DO:**
+1. Run E2E testing
+2. Run visual testing
+3. Check pass criteria
+4. Iterate if not pass
+5. Stop at MAX_ITERATIONS
+6. Generate detailed reports
 
 ---
 

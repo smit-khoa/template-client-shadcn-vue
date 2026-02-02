@@ -2,13 +2,43 @@
 
 > **Thư viện components Vue 3 cho dự án - Shadcn/Vue + Custom Components**
 
+## 🚨 QUAN TRỌNG: Component Priority
+
+**LUÔN LUÔN sử dụng components từ `src/components/custom` TRƯỚC:**
+
+```typescript
+// ✅ Correct - Import từ custom
+import { Button } from '@/components/custom/button'
+import { Input } from '@/components/custom/input'
+import { Icon } from '@/components/custom/icon'
+
+// ❌ Wrong - Không dùng UI nếu custom đã có
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+```
+
+**Priority Matrix:**
+```
+1. Custom Components (@/components/custom)  ← ALWAYS FIRST
+2. UI Components (@/components/ui)          ← Only if custom doesn't have
+3. Create New Component                     ← Last resort
+```
+
 ## 📚 Tổng quan
 
 Dự án sử dụng 2 tầng components:
-1. **UI Components** - 21 folders từ Shadcn/Reka UI (primitives)
-2. **Custom Components** - 26 folders đã được tùy biến cho project
+1. **Custom Components** - 26 folders (47 files) - **PRIORITY FIRST** ⭐
+2. **UI Components** - 21 folders (94 files) - Shadcn primitives (only if needed)
 
 **Total:** 141 component files
+
+---
+
+## 📖 Documentation Links
+
+- **[Custom Components Usage Guide](./custom-components-usage.md)** - Complete usage guide với examples
+- **[Design System](./design-system.md)** - Design tokens & styling guidelines
+- **[Figma Workflow](./figma-to-code-workflow.md)** - Automation workflow
 
 ---
 

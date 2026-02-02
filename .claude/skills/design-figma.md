@@ -136,75 +136,147 @@ for (const new_comp of components_to_create) {
 
 **Output:** Generated Vue files
 
-#### Phase 4: Visual Testing
+#### Phase 4: E2E + Visual Testing (MANDATORY - CANNOT SKIP)
 ```typescript
-// 1. Start dev server (if not running)
-await Bash('npm run dev', { run_in_background: true })
+// 🚨 CRITICAL: This phase CANNOT be skipped
 
-// 2. Wait for server ready
-await sleep(3000)
-
-// 3. Run Playwright visual test
-const test_code = generatePlaywrightTest({
-  page_url: `https://localhost:8309${page_route}`,
-  figma_screenshot: screenshot,
-  test_name: `visual-regression-${component_name}`
+// 1. Generate E2E test file
+const test_file = generateE2ETest({
+  component_name,
+  page_route,
+  figma_config: {
+    figma_url,
+    figma_screenshot_url: screenshot_url
+  },
+  logic_tests: generateLogicTests(components),
+  visual_options: {
+    threshold: 0.05,  // 95% similarity required
+    full_page: true
+  }
 })
 
-// 4. Execute test
-const test_result = await Bash(`npx playwright test --config=e2e/playwright.config.ts`)
+await Write(`e2e/tests/${component_name}.spec.ts`, test_file)
 
-// 5. Compare screenshots
-const similarity = await compareScreenshots(
-  figma_screenshot,
-  generated_screenshot
+// 2. Start dev server (if not running)
+await Bash('npm run dev', { run_in_background: true })
+await sleep(3000)
+
+// 3. Run E2E + Visual tests (MANDATORY)
+const test_result = await Bash(
+  `npx playwright test e2e/tests/${component_name}.spec.ts --reporter=json`
 )
+
+// 4. Parse results
+const results = JSON.parse(test_result.stdout)
+
+// 5. Validate BOTH logic AND visual
+const pass_criteria = {
+  logic_passed: results.logic.pass_rate === 100,
+  visual_passed: results.visual.similarity >= 95
+}
 ```
 
-**Output:** Visual test report với similarity score
+**Output:** Complete test results (logic + visual)
 
-#### Phase 5: Iteration & Refinement
+**🚨 Validation Checkpoint:**
 ```typescript
-let iteration = 0
-const MAX_ITERATIONS = 3
-
-while (similarity < 95 && iteration < MAX_ITERATIONS) {
-  iteration++
-
-  // 1. Analyze differences
-  const issues = analyzeDifferences(figma_screenshot, generated_screenshot)
-
-  // 2. Generate fixes
-  const fixes = issues.map(issue => generateFix(issue))
-
-  // 3. Apply fixes
-  for (const fix of fixes) {
-    await Edit(file_path, fix.old_code, fix.new_code)
-  }
-
-  // 4. Re-test
-  similarity = await rerunVisualTest()
+if (!pass_criteria.logic_passed || !pass_criteria.visual_passed) {
+  // MUST go to Phase 5 (Iteration)
+  console.log('❌ Tests failed - Starting iteration...')
+  await Phase5_Iteration(results)
 }
+```
 
-if (similarity >= 95) {
-  return {
-    status: 'success',
-    similarity,
-    iterations,
-    files_modified: [file_path, ...new_component_paths]
+#### Phase 5: Auto-Loop Until Pass (MANDATORY)
+```typescript
+// 🚨 CRITICAL: Must loop until tests pass or MAX_ITERATIONS reached
+
+async function autoIterateUntilPass() {
+  let iteration = 0
+  const MAX_ITERATIONS = 3
+
+  while (iteration < MAX_ITERATIONS) {
+    iteration++
+    console.log(`🔄 Iteration ${iteration}/${MAX_ITERATIONS}`)
+
+    // Phase 4: Run E2E + Visual tests
+    const results = await runE2EAndVisualTests()
+
+    // PRIORITY 1: Check logic tests
+    if (!results.logic_passed) {
+      console.log('❌ Logic tests failed')
+
+      // Analyze logic errors
+      const logic_issues = analyzeLogicErrors(results.logic_errors)
+
+      // Generate fixes
+      const fixes = logic_issues.map(issue => generateLogicFix(issue))
+
+      // Apply fixes to code
+      for (const fix of fixes) {
+        await Edit(file_path, fix.old_code, fix.new_code)
+      }
+
+      continue  // Back to Phase 4
+    }
+
+    // PRIORITY 2: Check visual similarity
+    if (results.visual_similarity < 95) {
+      console.log(`❌ Visual: ${results.visual_similarity}%`)
+
+      // Analyze visual differences
+      const visual_issues = analyzeVisualDiff(results.visual_diff_image)
+
+      // Generate visual fixes
+      const fixes = visual_issues.map(issue => generateVisualFix(issue))
+
+      // Apply fixes (Tailwind classes, spacing, colors)
+      for (const fix of fixes) {
+        await Edit(file_path, fix.old_code, fix.new_code)
+      }
+
+      continue  // Back to Phase 4
+    }
+
+    // ✅ Both logic and visual tests passed!
+    return {
+      status: 'success',
+      similarity: results.visual_similarity,
+      iterations: iteration,
+      files_modified: [file_path, ...new_component_paths],
+      test_results: results
+    }
   }
-} else {
+
+  // ❌ Max iterations reached without passing
   return {
     status: 'needs_review',
-    similarity,
-    iterations,
-    issues: remaining_issues,
-    suggestion: 'Manual review required'
+    similarity: results.visual_similarity,
+    iterations: MAX_ITERATIONS,
+    issues: results.remaining_issues,
+    suggestion: 'Manual review required - exceeded max iterations'
   }
 }
 ```
 
 **Output:** Final report với status và metrics
+
+**🚨 CRITICAL VALIDATION:**
+```typescript
+// This workflow CANNOT proceed without validation:
+
+const validation = {
+  phase_4_executed: true,        // Phase 4 MUST run
+  logic_tested: true,            // Logic tests MUST run
+  visual_tested: true,           // Visual tests MUST run
+  iteration_attempted: true      // Phase 5 MUST attempt iteration if failed
+}
+
+// If ANY of these is false → REJECT and throw error
+if (!Object.values(validation).every(v => v === true)) {
+  throw new Error('🚨 WORKFLOW VIOLATION: Testing phases cannot be skipped')
+}
+```
 
 ### Communication Guidelines
 
@@ -242,6 +314,9 @@ if (similarity >= 95) {
 5. ✅ TypeScript strict mode
 6. ✅ Visual similarity >= 95% to pass
 7. ✅ Maximum 3 iterations before requesting review
+8. ✅ **Phase 4 (E2E Testing) CANNOT be skipped under ANY circumstances**
+9. ✅ **Phase 5 (Auto-iteration) MUST execute if tests fail**
+10. ✅ **Must iterate until tests pass OR max 3 iterations reached**
 
 **FORBIDDEN:**
 1. ❌ Do NOT create new components without checking existing ones
@@ -249,6 +324,34 @@ if (similarity >= 95) {
 3. ❌ Do NOT skip visual testing
 4. ❌ Do NOT proceed if similarity < 95% after 3 iterations
 5. ❌ Do NOT use Options API
+6. ❌ **NEVER skip Phase 4 testing - this is a BLOCKER**
+7. ❌ **NEVER skip Phase 5 iteration loop - this is a BLOCKER**
+8. ❌ **NEVER accept failing tests without attempting fixes**
+
+**🚨 TESTING ENFORCEMENT (NON-NEGOTIABLE):**
+
+The workflow MUST follow this sequence:
+```
+Phase 3 (Code) → Phase 4 (Test) → Phase 5 (Iterate if failed) → Success/Review
+                      ↓                    ↓
+                   MANDATORY          MANDATORY IF TESTS FAIL
+```
+
+**Validation checkpoints:**
+- ✅ After Phase 3: "Did you generate E2E test file?"
+- ✅ After Phase 4: "Did you run E2E + Visual tests?"
+- ✅ After Phase 4: "Did logic tests pass 100%?"
+- ✅ After Phase 4: "Did visual similarity reach >= 95%?"
+- ✅ If any NO: "Did you trigger Phase 5 auto-iteration?"
+
+**If AI attempts to skip testing:**
+```typescript
+throw new Error(
+  '🚨 CRITICAL VIOLATION: Phase 4 testing is MANDATORY. ' +
+  'Workflow cannot proceed without E2E + Visual testing. ' +
+  'This is a non-negotiable requirement.'
+)
+```
 
 ### Tools Required
 
@@ -275,12 +378,33 @@ if (similarity >= 95) {
 - ✅ Component reuse rate >= 80%
 - ✅ Zero TypeScript errors
 - ✅ Zero inline styles
-- ✅ All tests passing
+- ✅ All tests passing (logic 100% + visual 95%)
+- ✅ **E2E test file generated in Phase 4**
+- ✅ **E2E tests executed in Phase 4**
+- ✅ **Phase 5 iteration attempted if tests failed**
+
+**Testing Requirements (MANDATORY):**
+- ✅ Logic tests pass rate: 100% (all tests must pass)
+- ✅ Visual similarity: >= 95% (pixel-perfect match)
+- ✅ Performance metrics: FCP < 2s, LCP < 4s
+- ✅ Accessibility: Zero violations
+- ✅ Responsive: Works on all breakpoints
+
+**Workflow Completion Checklist:**
+- [ ] Phase 1: Figma analysis completed
+- [ ] Phase 2: Component mapping completed
+- [ ] Phase 3: Code implementation completed
+- [ ] Phase 4: E2E test file generated (**MANDATORY**)
+- [ ] Phase 4: E2E tests executed (**MANDATORY**)
+- [ ] Phase 4: Test results validated (**MANDATORY**)
+- [ ] Phase 5: Iteration attempted if needed (**MANDATORY IF FAILED**)
+- [ ] Final: All tests passing OR max iterations reached
 
 **Metrics:**
 - ⏱️ Total time: < 10 minutes
 - 🔄 Iterations: <= 3
 - 🎯 First-pass success: >= 60%
+- 📊 Testing coverage: 100% (cannot be skipped)
 
 ## Related Workflows
 
