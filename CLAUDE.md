@@ -166,6 +166,20 @@ Available skills:
 - **FORBIDDEN:** Inline styles (`style="..."`)
 - **ONLY IF NEEDED:** `<style scoped>` cho CSS thuần (gradients, animations)
 
+**🧪 E2E Test Commands:**
+```bash
+npm run test:e2e           # ⚡ Headless (nhanh nhất)
+npm run test:e2e:ui        # 🎯 UI mode (debug tốt nhất)
+npm run test:e2e:headed    # 👀 Headed (xem browser real-time)
+npm run test:e2e:debug     # 🐛 Debug mode
+```
+
+**🔄 Visual Test Fail → BẮT BUỘC CODE LẠI:**
+1. Xem diff: `e2e/tests/[name].spec.ts-snapshots/*-diff.png`
+2. Sửa inline Tailwind classes trong template
+3. Chạy lại: `npm run test:e2e:headed`
+4. Lặp lại cho đến khi PASS (max 3 iterations)
+
 ## 🚨 Critical Rules
 
 1. **🚨 COMPONENT RULE (MANDATORY)** - ONLY import from `@/components/custom`

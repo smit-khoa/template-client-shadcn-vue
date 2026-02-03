@@ -609,6 +609,25 @@ describe('Button', () => {
 })
 ```
 
+### E2E Test Commands
+
+```bash
+# ⚡ FASTEST - Headless (CI/CD, automation)
+npm run test:e2e
+
+# 🎯 RECOMMENDED - UI Mode (debug tốt nhất)
+npm run test:e2e:ui
+
+# 👀 VISUAL - Headed mode (xem browser real-time)
+npm run test:e2e:headed
+
+# 🐛 DEBUG - Debug mode
+npm run test:e2e:debug
+
+# Chạy file cụ thể
+npm run test:e2e:headed -- e2e/tests/[name].spec.ts
+```
+
 ### E2E Test Structure
 ```typescript
 // e2e/login.spec.ts
@@ -628,6 +647,32 @@ test('login flow', async ({ page }) => {
   await expect(page).toHaveURL('/app/dashboard')
 })
 ```
+
+### 🔄 Visual Test FAIL → BẮT BUỘC CODE LẠI
+
+**Quy trình khi visual test không match:**
+
+```
+1. Chạy test: npm run test:e2e:headed
+   ↓
+2. Test FAIL → Xem diff image
+   Location: e2e/tests/[name].spec.ts-snapshots/
+   - *-actual.png: Code hiện tại
+   - *-expected.png: Figma baseline
+   - *-diff.png: Vùng khác biệt (màu đỏ)
+   ↓
+3. SỬA CODE - Chỉnh inline Tailwind classes
+   - Spacing: p-4 → p-6, gap-2 → gap-4
+   - Color: bg-primary → bg-primary-300
+   - Font: text-base → text-lg
+   - Layout: flex → grid, items-start → items-center
+   ↓
+4. Chạy lại: npm run test:e2e:headed
+   ↓
+5. Lặp lại cho đến khi PASS (max 3 iterations)
+```
+
+**🚨 MANDATORY:** Khi visual test FAIL, BẮT BUỘC phải code lại cho giống Figma. KHÔNG được bỏ qua.
 
 ---
 

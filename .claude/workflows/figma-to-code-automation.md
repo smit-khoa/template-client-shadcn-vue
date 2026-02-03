@@ -454,16 +454,40 @@ const logic_tests = [
 
 #### 3. Run E2E Test Suite
 
+**Các lệnh test có sẵn:**
+
 ```bash
-# Auto-run dev server + Playwright tests
-npx playwright test e2e/tests/[component-name].spec.ts
+# ⚡ FASTEST - Headless (dùng cho CI/CD, automation)
+npm run test:e2e
 
-# With UI mode for debugging
-npx playwright test --ui
+# 🎯 RECOMMENDED - UI Mode (debug tốt nhất, xem từng step)
+npm run test:e2e:ui
 
-# Generate HTML report
-npx playwright test --reporter=html
+# 👀 VISUAL - Headed mode (xem browser real-time)
+npm run test:e2e:headed
+
+# 🐛 DEBUG - Debug mode (pause at breakpoints)
+npm run test:e2e:debug
 ```
+
+**Chạy test cho file cụ thể:**
+```bash
+# Headless - nhanh nhất
+npm run test:e2e -- e2e/tests/[component-name].spec.ts
+
+# Headed - xem browser
+npm run test:e2e:headed -- e2e/tests/[component-name].spec.ts
+
+# UI mode - debug
+npm run test:e2e:ui -- e2e/tests/[component-name].spec.ts
+```
+
+**Khuyến nghị:**
+| Use Case | Lệnh | Tốc độ |
+|----------|------|--------|
+| CI/CD, automation | `npm run test:e2e` | ⚡ Nhanh nhất |
+| Debug visual issues | `npm run test:e2e:ui` | 🎯 Tốt nhất |
+| Xem real-time | `npm run test:e2e:headed` | 👀 Trung bình |
 
 #### 4. Visual Comparison Workflow
 
@@ -622,19 +646,44 @@ e2e/
 
 ---
 
-### 🔁 PHASE 5: Iteration & Refinement (AUTO-LOOP UNTIL PASS)
+### 🔁 PHASE 5: Iteration & Refinement (🚨 BẮT BUỘC CODE LẠI KHI FAIL)
 
 **Objective:** Achieve 100% logic pass + 95%+ visual similarity
 
-**🚨 CRITICAL:** This phase CANNOT be skipped. Must loop until pass criteria met.
+**🚨 CRITICAL:** Khi visual test FAIL → **BẮT BUỘC** phải code lại cho giống Figma design. KHÔNG được bỏ qua.
 
 **Pass Criteria:**
 ```typescript
 const PASS_CRITERIA = {
   logic_tests: 100,        // 100% pass rate (MANDATORY)
-  visual_similarity: 95,   // >= 95% similarity (MANDATORY)
+  visual_similarity: 95,   // >= 95% similarity (MANDATORY - threshold: 0.05)
   max_iterations: 3        // Maximum attempts before human review
 }
+```
+
+**🔄 Quy trình khi Visual Test FAIL:**
+
+```
+1. Chạy test: npm run test:e2e:headed (hoặc npm run test:e2e:ui để debug)
+   ↓
+2. Test FAIL (visual không match)
+   ↓
+3. Xem screenshot diff tại: e2e/tests/[name].spec.ts-snapshots/
+   - *-actual.png: Screenshot hiện tại
+   - *-expected.png: Baseline (Figma)
+   - *-diff.png: Vùng khác biệt (highlight màu đỏ)
+   ↓
+4. Phân tích lỗi từ diff image:
+   - Spacing sai? → Chỉnh Tailwind: p-4 → p-6, gap-2 → gap-4
+   - Color sai? → Chỉnh Tailwind: bg-primary → bg-primary-300
+   - Font sai? → Chỉnh Tailwind: text-base → text-lg, font-medium → font-semibold
+   - Layout sai? → Chỉnh Tailwind: flex → grid, items-start → items-center
+   ↓
+5. SỬA CODE trong component/page
+   ↓
+6. Chạy lại test: npm run test:e2e:headed
+   ↓
+7. Lặp lại cho đến khi PASS hoặc đạt 3 iterations
 ```
 
 **Decision Tree:**
@@ -776,50 +825,47 @@ async function fixLogicIssues(errors) {
 }
 ```
 
-#### 3. Fix Visual Issues (if similarity < 95%)
+#### 3. Fix Visual Issues (🚨 BẮT BUỘC CODE LẠI)
 
-```typescript
-async function fixVisualIssues(issues) {
-  for (const issue of issues) {
-    switch (issue.type) {
-      case 'color':
-        // Fix color mismatch
-        await updateColor(issue.element, issue.expected)
-        // Example: bg-primary-500 → bg-primary-600
-        break
+**Khi visual test FAIL, PHẢI sửa code theo các bước:**
 
-      case 'spacing':
-        // Fix padding/margin
-        await updateSpacing(issue.element, issue.expected)
-        // Example: px-4 → px-6, mt-2 → mt-4
-        break
+**Step 1: Xem diff image**
+```bash
+# Mở folder snapshots để xem diff
+ls e2e/tests/[name].spec.ts-snapshots/
 
-      case 'typography':
-        // Fix font properties
-        await updateTypography(issue.element, issue.expected)
-        // Example: text-base → text-lg, font-medium → font-semibold
-        break
+# Files:
+# - [name]-actual.png     → Screenshot hiện tại (code của bạn)
+# - [name]-expected.png   → Baseline từ Figma
+# - [name]-diff.png       → Vùng khác biệt (màu đỏ = sai)
+```
 
-      case 'layout':
-        // Fix layout properties
-        await updateLayout(issue.element, issue.expected)
-        // Example: flex-row → flex-col, gap-2 → gap-4
-        break
+**Step 2: Phân tích và sửa code**
 
-      case 'size':
-        // Fix width/height
-        await updateSize(issue.element, issue.expected)
-        // Example: w-32 → w-40, h-10 → h-12
-        break
-    }
-  }
+| Vấn đề | Nguyên nhân | Cách sửa |
+|--------|-------------|----------|
+| Màu sai | Wrong color class | `bg-primary` → `bg-primary-300` |
+| Spacing sai | Wrong padding/margin | `p-4` → `p-6`, `gap-2` → `gap-4` |
+| Font sai | Wrong text class | `text-base` → `text-lg`, `font-medium` → `font-semibold` |
+| Layout sai | Wrong flex/grid | `flex-row` → `flex-col`, `items-start` → `items-center` |
+| Size sai | Wrong width/height | `w-32` → `w-40`, `h-10` → `h-12` |
+| Border sai | Wrong border | `rounded-lg` → `rounded-2xl`, `border` → `border-2` |
 
-  // Save changes
-  await saveFile(component_file)
+**Step 3: Sửa trực tiếp trong template (inline Tailwind classes)**
+```vue
+<!-- Trước (FAIL) -->
+<div class="p-4 gap-2 text-base">
 
-  // Re-run Phase 4
-  console.log('🔄 Re-running tests after visual fixes...')
-}
+<!-- Sau (PASS) -->
+<div class="p-6 gap-4 text-lg">
+```
+
+**Step 4: Chạy lại test**
+```bash
+npm run test:e2e:headed -- e2e/tests/[name].spec.ts
+```
+
+**Step 5: Lặp lại cho đến khi PASS**
 ```
 
 #### 4. Iteration Tracking
