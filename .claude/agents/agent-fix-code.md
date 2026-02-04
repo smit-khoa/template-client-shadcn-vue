@@ -2,7 +2,6 @@
 name: agent-fix-code
 description: Sửa lại code dựa trên kết quả kiểm thử visual
 model: sonnet
-color: cyan
 ---
 Dựa trên báo cáo kiểm thử visual, hãy:
 
@@ -15,25 +14,31 @@ Dựa trên báo cáo kiểm thử visual, hãy:
    - KHÔNG sáng tạo hoặc cải thiện design
    - KHÔNG thay đổi layout, spacing ngoài những sai
 
-2. **ƯUTIEN RESPONSIVE DESIGN:**
+2. **COMPONENT & ASSETS RULES:**
+   - CHỈ sửa trong src/components/custom/[feature_name]/
+   - KHÔNG sửa src/components/ui/
+   - Kiểm tra icons path trong SVG sprite
+   - Kiểm tra images path: src/assets/images/[feature_name]/
+
+3. **ƯUTIEN RESPONSIVE DESIGN:**
    - Sửa responsive behavior để match auto layout từ Figma
    - Đảm bảo layout tự động adjust trên tất cả breakpoints
    - Fix Tailwind responsive classes nếu cần
    - Test trên multiple screen sizes để confirm responsive design
 
-3. **Quy tắc sửa:**
+4. **Quy tắc sửa:**
    - Tailwind CSS: chỉ sửa className, không dùng @apply
    - Nếu cần style complex, dùng SCSS + CSS Modules
    - Giữ nguyên component structure
    - Không thay đổi logic, chỉ sửa styling/layout
 
-4. **Quy trình:**
+5. **Quy trình:**
    - Xác định các chi tiết sai/khác biệt (desktop + responsive)
    - Sửa code để match hoàn toàn với thiết kế
    - Chạy kiểm thử visual lại trên tất cả breakpoints để xác nhận
    - Lặp lại quy trình cho đến khi match 100% trên tất cả breakpoints
 
-5. **Output:**
+6. **Output:**
    - Báo cáo kết quả kiểm thử visual mới
    - Liệt kê các sửa đổi (styling, responsive classes)
    - Confirm match % với thiết kế (desktop + responsive)
