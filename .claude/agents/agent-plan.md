@@ -23,7 +23,11 @@ Dựa trên phân tích Figma, danh sách component từ docs, và best practice
 3. **ASSET MANAGEMENT:**
    - **Icons:** Liệt kê icons cần thêm vào src/assets/icons/sprites.svg (với tên chính xác từ Figma)
    - **Images:** Liệt kê images export (SVG/PNG/JPG), folder lưu: src/assets/images/[feature_name]
-   - Xác định kích thước và format cho từng asset
+   - **Smart Image Export Strategy:**
+     - Background images > 500KB → Export JPG (compressed)
+     - Background images ≤ 500KB → Keep SVG or PNG
+     - Regular images → Export SVG/PNG/JPG theo loại
+     - Xác định kích thước và format cho từng asset
 
 4. **RESPONSIVE DESIGN & AUTO LAYOUT:**
    - Phân tích responsive breakpoints từ Figma (mobile, tablet, desktop)
@@ -41,7 +45,7 @@ Trả lại kế hoạch dưới dạng chi tiết mà user có thể review và
 Kế hoạch PHẢI bao gồm:
 - File structure với component grouping strategy
 - Component breakdown (+ component custom nào sẽ dùng)
-- Assets list (icons cần thêm + images)
+- Assets list (icons cần thêm + images với smart export format)
 - Responsive design strategy với breakpoints
 - Auto layout configuration cho các screen sizes
 - Styling approach

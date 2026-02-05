@@ -6,7 +6,7 @@ color: blue
 ---
 Hãy triển khai code theo kế hoạch đã được duyệt:
 
-⚠️ **NGUYÊN TẮC BẮTBUỘC - TUÂN THỰ CHÍNH XÁC THIẾT KẾ FIGMA:**
+⚠️ **RÀNG BUỘC NGHIÊM NGẶT - TUÂN THỰ CHÍNH XÁC THIẾT KẾ FIGMA:**
 
 1. **KHÔNG được thay đổi bất kỳ điều gì trong thiết kế Figma:**
    - ❌ KHÔNG thêm components, sections, hoặc giao diện mới
@@ -16,10 +16,13 @@ Hãy triển khai code theo kế hoạch đã được duyệt:
    - ❌ KHÔNG thêm effects, shadows, hoặc animations không có trong design
    - ❌ KHÔNG thay đổi responsive breakpoints hoặc behavior
    - ❌ KHÔNG sáng tạo hoặc tự ý cải thiện giao diện
+   - ❌ KHÔNG tự ý tùy chỉnh UI của components dùng chung (chúng đã đủ đáp ứng)
+   - ❌ KHÔNG thêm CSS vào custom components - chỉ dùng className Tailwind
 
 2. **COMPONENT IMPLEMENTATION - BẮT BUỘC RULES:**
    - ✓ CHỈ sử dụng components từ src/components/custom/
    - ✓ KHÔNG sử dụng src/components/ui/ (base components của shadcn-vue - không được sửa)
+   - ✓ KHÔNG tùy chỉnh UI của custom components - sử dụng nguyên vẹn như thiết kế
    - ✓ Tổ chức components theo feature: src/components/[feature_name]/[component_name].vue
    - ✓ Gộp các components liên quan trong cùng thư mục feature
    - ✓ Hạn chế tách quá nhỏ - gom các logic liên quan lại
@@ -30,10 +33,14 @@ Hãy triển khai code theo kế hoạch đã được duyệt:
      - Kiểm tra src/assets/icons/sprites.svg
      - Thêm các icons mới vào sprites.svg (nếu chưa có) với tên chính xác từ Figma
      - Sử dụng SVG sprite icons trong component (không dùng icon library khác)
-   - **Images:**
-     - Export images thành SVG, PNG, JPG (các format cần thiết)
+   - **Images - SMART EXPORT STRATEGY:**
+     - Phân tích kích thước ảnh background:
+       - **Nếu file > 500KB (ảnh phức tạp):** Export dạng JPG (compressed) - tối ưu kích thước
+       - **Nếu file ≤ 500KB:** Có thể giữ SVG hoặc PNG - chất lượng tốt
+     - **ƯUTIEN export ảnh background phức tạp thành JPG để tối ưu performance**
+     - Export multiple formats (SVG, PNG, JPG) khi cần
      - Lưu trong src/assets/images/[feature_name]/
-     - Import và sử dụng trong components
+     - Import và sử dụng trong components với format thích hợp
 
 4. **RESPONSIVE DESIGN & AUTO LAYOUT:**
    - ✓ Implement responsive design cho TẤT CẢ screen sizes (mobile, tablet, desktop)
@@ -51,11 +58,13 @@ Hãy triển khai code theo kế hoạch đã được duyệt:
 
 6. **Output:**
    - Liệt kê tất cả files đã tạo/sửa với path đầy đủ
-   - Liệt kê icons/images đã thêm vào assets
+   - Liệt kê icons/images đã thêm vào assets (với format được chọn)
    - Giải thích cấu trúc component grouping
    - Liệt kê các custom components đã sử dụng
+   - Giải thích smart image export strategy đã áp dụng (ưu tiên JPG cho ảnh phức tạp)
    - Confirm rằng code match 100% với thiết kế Figma
    - Confirm rằng responsive design được implement cho tất cả breakpoints
    - Confirm rằng chỉ sử dụng src/components/custom (không dùng src/components/ui)
-   - Confirm rằng không có thay đổi nào ngoài design
+   - Confirm rằng KHÔNG có CSS thêm vào custom components
+   - Confirm rằng KHÔNG có thay đổi nào ngoài design
    - KHÔNG tạo file .md hoặc tài liệu không cần thiết

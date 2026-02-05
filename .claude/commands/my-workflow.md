@@ -11,9 +11,11 @@ flowchart TD
     agent_plan[agent-plan]
     ask_approve_plan{AskUserQuestion:<br/>Kế hoạch triển khai trên có hợp lý chưa? Bạn muốn điều chỉnh gì không?}
     agent_revise_plan[agent-revise-plan]
+    agent_brainstorm_plan[agent-brainstorm-plan]
+    ask_brainstorm_result{AskUserQuestion:<br/>Kết quả brainstorm như thế nào? Kế hoạch có khả thi không?}
     agent_implement_code[agent-implement-code]
     agent_visual_test[agent-visual-test]
-    ask_visual_result{AskUserQuestion:<br/>Kết quả kiểm thử visual như thế nào? Code có giống thiết kế không?}
+    ask_visual_result{AskUserQuestion:<br/>Kết quả toHaveScreenshot() như thế nào? Code match 100% thiết kế không?}
     agent_fix_code[agent-fix-code]
     end_node_default([End])
 
@@ -23,9 +25,12 @@ flowchart TD
     agent_read_docs --> agent_read_custom_components
     agent_read_custom_components --> agent_plan
     agent_plan --> ask_approve_plan
-    ask_approve_plan -->|Đồng ý, tiếp tục triển khai| agent_implement_code
+    ask_approve_plan -->|Đồng ý, tiếp tục triển khai| agent_brainstorm_plan
     ask_approve_plan -->|Cần điều chỉnh kế hoạch| agent_revise_plan
     agent_revise_plan --> ask_approve_plan
+    agent_brainstorm_plan --> ask_brainstorm_result
+    ask_brainstorm_result --> agent_implement_code
+    ask_brainstorm_result --> agent_revise_plan
     agent_implement_code --> agent_visual_test
     agent_visual_test --> ask_visual_result
     ask_visual_result --> end_node_default
@@ -64,6 +69,10 @@ Ask the user and proceed based on their choice.
 - **Đồng ý, tiếp tục triển khai**: Tiến hành implement code theo kế hoạch
 - **Cần điều chỉnh kế hoạch**: Muốn sửa lại một số phần trong kế hoạch
 
-#### ask_visual_result(Kết quả kiểm thử visual như thế nào? Code có giống thiết kế không?)
+#### ask_brainstorm_result(Kết quả brainstorm như thế nào? Kế hoạch có khả thi không?)
+
+**Selection mode:** AI Suggestions (AI generates options dynamically based on context and presents them to the user)
+
+#### ask_visual_result(Kết quả toHaveScreenshot() như thế nào? Code match 100% thiết kế không?)
 
 **Selection mode:** AI Suggestions (AI generates options dynamically based on context and presents them to the user)
