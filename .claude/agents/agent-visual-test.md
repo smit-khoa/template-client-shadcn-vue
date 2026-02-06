@@ -24,13 +24,12 @@ Hãy kiểm thử visual để so sánh code vừa triển khai với thiết k�
 
     ```typescript
     await expect(page).toHaveScreenshot(`[component_name]-[width].png`, {
-        maxDiffPixels: 0, // STRICT: 0 pixels difference allowed
-        threshold: 0 // STRICT: pixel-perfect match required
+        threshold: 0.1,           // Cho phép sai lệch màu cực nhỏ (khử răng cưa)
+        maxDiffPixelRatio: 0.01,  // Chỉ cho phép sai khác dưới 1% tổng số pixel
+        animations: 'disabled',   // Bắt buộc tắt animation để ảnh chụp ổn định
+        caret: 'hide',            // Ẩn con trỏ chuột/nháy máy để tránh nhiễu
     })
     ```
-
-    - **maxDiffPixels: 0** = BẮTBUỘC match 100%, không cho phép bất kỳ sai khác nào
-    - **threshold: 0** = STRICT color matching, không tolerance
 
 4. **TEST RESPONSIVE DESIGN:**
 

@@ -25,7 +25,7 @@ Hãy triển khai code theo kế hoạch đã được duyệt:
    - ✓ KHÔNG tùy chỉnh UI của custom components - sử dụng nguyên vẹn như thiết kế, chỉ áp dụng theo cách sử dụng của nó
    - ✓ Tổ chức components theo feature: src/components/[feature_name]/[component_name].vue
    - ✓ Gộp các components liên quan trong cùng thư mục feature
-   - ✓ Hạn chế tách quá nhỏ - gom các logic liên quan lại
+   - ✓ Hạn chế tách quá nhỏ - gom các logic liên quan lại (theo tính năng)
    - ✓ Import components chính xác từ src/components/custom/
 
 3. **ASSETS HANDLING:**
