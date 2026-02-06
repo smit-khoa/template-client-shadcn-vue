@@ -6,7 +6,7 @@ color: blue
 ---
 Hãy triển khai code theo kế hoạch đã được duyệt:
 
-⚠️ **RÀNG BUỘC NGHIÊM NGẶT - TUÂN THỰ CHÍNH XÁC THIẾT KẾ FIGMA:**
+⚠️ **RÀNG BUỘC NGHIÊM NGẶT - TUÂN THỦ CHÍNH XÁC THIẾT KẾ FIGMA:**
 
 1. **KHÔNG được thay đổi bất kỳ điều gì trong thiết kế Figma:**
    - ❌ KHÔNG thêm components, sections, hoặc giao diện mới
@@ -21,8 +21,8 @@ Hãy triển khai code theo kế hoạch đã được duyệt:
 
 2. **COMPONENT IMPLEMENTATION - BẮT BUỘC RULES:**
    - ✓ CHỈ sử dụng components từ src/components/custom/
-   - ✓ KHÔNG sử dụng src/components/ui/ (base components của shadcn-vue - không được sửa)
-   - ✓ KHÔNG tùy chỉnh UI của custom components - sử dụng nguyên vẹn như thiết kế
+   - ✓ KHÔNG sử dụng src/components/ui/ (base components của shadcn-vue - không được sửa, không sử dụng)
+   - ✓ KHÔNG tùy chỉnh UI của custom components - sử dụng nguyên vẹn như thiết kế, chỉ áp dụng theo cách sử dụng của nó
    - ✓ Tổ chức components theo feature: src/components/[feature_name]/[component_name].vue
    - ✓ Gộp các components liên quan trong cùng thư mục feature
    - ✓ Hạn chế tách quá nhỏ - gom các logic liên quan lại
@@ -55,6 +55,7 @@ Hãy triển khai code theo kế hoạch đã được duyệt:
    - Nếu không thể dùng Tailwind CSS, sử dụng SCSS + CSS Modules
    - Naming convention: snake_case cho variables, camelCase cho functions
    - Đảm bảo imports đúng path, component names đúng
+   - Với các div có background phức tạp, hãy export ảnh làm background, nếu không thể export chuẩn, thay thế ảnh default tạm thời để user thay ảnh
 
 6. **Output:**
    - Liệt kê tất cả files đã tạo/sửa với path đầy đủ

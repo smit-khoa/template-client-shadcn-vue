@@ -37,7 +37,8 @@
         "vue-router": "^4.6.4",
         "vue-sonner": "^2.0.2",
         "vue-svg-sprite": "^2.2.1",
-        "vuedraggable": "^4.1.0"
+        "vuedraggable": "^4.1.0",
+        "zod": "^4.3.6"
     },
     "devDependencies": {
         "@playwright/test": "^1.58.0",

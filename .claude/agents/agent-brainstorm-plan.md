@@ -17,6 +17,7 @@ Dựa trên kế hoạch triển khai đã được duyệt, hãy brainstorm và
    - Có conflicts giữa design requirements và custom component capabilities không?
    - Responsive design có độc lập enough để tự động adjust không?
    - Assets (icons, images) có đủ hay cần thêm gì không?
+   - Nếu thực hiện kế hoạch thì kết quả có giống với thiết kế không?
 
 3. **RỦI RO & GIẢI PHÁP:**
    - Nếu phát hiện vấn đề, đề xuất giải pháp cụ thể

@@ -6,7 +6,7 @@ color: green
 ---
 Dựa trên phân tích Figma từ bước trước, hãy:
 1. Đọc tất cả files trong docs/ folder của dự án để hiểu cấu trúc component
-2. Xem src/components/custom/ để biết các component đã có sẵn
+2. Xem src/components/custom/ để biết các component đã có sẵn (không sửa đổi)
 3. **KHÔNG đọc src/components/ui/** vì đó là base components của shadcn-vue (không sửa đổi)
 4. Tập trung vào việc hiểu purpose, props, và usage patterns của các custom components
 5. Kiểm tra src/assets/icons/sprites.svg để xem icons nào đã có sẵn
