@@ -4,7 +4,7 @@ description: my-workflow
 ```mermaid
 flowchart TD
     start_node_default([Start])
-    prompt_figma_link[Khoa hiện lên và nói:]
+    prompt_figma_link[Vui lòng cung cấp link Figm...]
     agent_analyze_figma[agent-analyze-figma]
     agent_read_docs[agent-read-docs]
     agent_read_custom_components[agent-read-custom-components]
@@ -51,12 +51,10 @@ Follow the Mermaid flowchart above to execute the workflow. Each node type has s
 
 ### Prompt Node Details
 
-#### prompt_figma_link(Khoa hiện lên và nói:)
+#### prompt_figma_link(Vui lòng cung cấp link Figm...)
 
 ```
-Khoa hiện lên và nói:
-"Vui lòng cung cấp link Figma design mà bạn muốn triển khai thành code.
-Nếu cần thêm giao diện vào đâu hoặc mô tả gì hãy cho tôi biết nhé <3."
+Vui lòng cung cấp link Figma design mà bạn muốn triển khai thành code.
 ```
 
 ### AskUserQuestion Node Details
