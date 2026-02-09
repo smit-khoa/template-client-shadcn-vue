@@ -1,5 +1,5 @@
 ---
-description: my-workflow
+description: khoa_1
 ---
 ```mermaid
 flowchart TD
@@ -18,10 +18,12 @@ flowchart TD
     ask_visual_result{AskUserQuestion:<br/>Kết quả toHaveScreenshot() như thế nào? Code match 100% thiết kế không?}
     agent_fix_code[agent-fix-code]
     end_node_default([End])
+    agent_1770621158350[agent-phan-tich-design]
+    agent_1770621482261[agent-doc-du-an]
+    agent_1770621677356[plan]
+    agent_1770622516467[code]
 
     start_node_default --> prompt_figma_link
-    prompt_figma_link --> agent_analyze_figma
-    agent_analyze_figma --> agent_read_docs
     agent_read_docs --> agent_read_custom_components
     agent_read_custom_components --> agent_plan
     agent_plan --> ask_approve_plan
@@ -33,9 +35,15 @@ flowchart TD
     ask_brainstorm_result --> agent_revise_plan
     agent_implement_code --> agent_visual_test
     agent_visual_test --> ask_visual_result
-    ask_visual_result --> end_node_default
     ask_visual_result --> agent_fix_code
     agent_fix_code --> agent_visual_test
+    agent_analyze_figma --> agent_read_docs
+    prompt_figma_link --> agent_1770621158350
+    prompt_figma_link --> agent_1770621482261
+    agent_1770621158350 --> agent_1770621677356
+    agent_1770621482261 --> agent_1770621677356
+    agent_1770621677356 --> agent_1770622516467
+    agent_1770622516467 --> end_node_default
 ```
 
 ## Workflow Execution Guide
@@ -54,7 +62,7 @@ Follow the Mermaid flowchart above to execute the workflow. Each node type has s
 #### prompt_figma_link(Vui lòng cung cấp link Figm...)
 
 ```
-Vui lòng cung cấp link Figma design mà bạn muốn triển khai thành code.
+Vui lòng cung cấp link Figma design mà bạn muốn triển khai thành code và cung cấp yêu cầu chi tiết nếu muốn mô tả thêm công việc cụ thể.
 ```
 
 ### AskUserQuestion Node Details

@@ -18,12 +18,12 @@
                 {{ item.title }}
             </div>
         </label>
-        <img
+        <!-- <img
             class="absolute h-[53px]"
             style="transition: all 0.5s cubic-bezier(0.72, 0.73, 0.2, 0.71)"
             :style="selectedStyle"
             src="@/assets/images/light.png"
-            alt="" />
+            alt="" /> -->
         <!-- <div class="switcher-selected" :class="animationClass" :style="selectedStyle" /> -->
     </fieldset>
 </template>
