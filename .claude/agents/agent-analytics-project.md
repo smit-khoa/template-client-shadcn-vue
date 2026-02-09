@@ -1,5 +1,5 @@
 ---
-name: agent-doc-du-an
+name: agent-analytics-project
 description: Đọc dự án hiện tại
 model: sonnet
 ---

@@ -1,5 +1,5 @@
 ---
-name: agent-phan-tich-design
+name: agent-analytics-figma
 description: Phân tích thiết kế
 model: sonnet
 ---

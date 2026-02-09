@@ -3,7 +3,7 @@ name: plan
 description: Lên kế hoạch
 model: sonnet
 ---
-Lấy kết quả từ node agent-phan-tich-design và agent-doc-du-an để tổng hợp lại xây dựng kế hoạch triển khai theo yêu cầu:
+Lấy kết quả từ node agent-analytics-figma và agent-analytics-project để tổng hợp lại xây dựng kế hoạch triển khai theo yêu cầu:
 
 1. Match lại các component có thể áp dụng để viết giao diện
 2. Đọc tài liệu của các component đã match bằng cách xem các file README.md, đọc file demo.vue để biết cách sử dụng của từng component đó
