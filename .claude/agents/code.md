@@ -3,12 +3,12 @@ name: code
 description: Triển khai code Vue + Tailwindcss
 model: sonnet
 ---
-Hãy triển khai code theo kế hoạch, sử dụng lệnh /cook của Claudekit để thực hiện với các yêu cầu:
+Hãy triển khai code theo kế hoạch, sử dụng lệnh /cook của Claudekit để thực hiện với các yêu cầu BẮT BUỘC:
 
 ⚠️ **RÀNG BUỘC NGHIÊM NGẶT - TUÂN THỦ CHÍNH XÁC THIẾT KẾ FIGMA:**
 
 1. **KHÔNG được thay đổi bất kỳ điều gì trong thiết kế Figma:**
-   - ❌ KHÔNG tự ý thêm components, sections, hoặc giao diện mới không có trong thiết kế
+   - ❌ KHÔNG tự ý thêm components, sections, hoặc giao diện mới không có trong thiết kế, yêu cầu chỉ code những gì có trong thiết kế
    - ❌ KHÔNG thay đổi màu sắc, gradient, hoặc color scheme
    - ❌ KHÔNG thay đổi layout, spacing, hoặc positioning
    - ❌ KHÔNG thay đổi typography, font sizes, hoặc weights
