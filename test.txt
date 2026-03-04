@@ -1,0 +1,219 @@
+Lưu ý : các dòng chữ tô đỏ thì đội tech bắt buộc phải học, còn với các nhân sự khác có thể học hoặc bỏ qua. 
+MODULE 1: BẢN CHẤT CỦA TRÍ TUỆ NHÂN TẠO (AI FUNDAMENTALS)
+1. Cấu trúc nền tảng
+	•	AI vs ML vs DL: Sự khác biệt cơ bản giữa Trí tuệ nhân tạo (AI), Học máy (Machine Learning) và Học sâu (Deep Learning) là gì? GenAI (AI tạo sinh) nằm ở đâu trong mô hình này?
+	•	Transformer Architecture: Kiến trúc Transformer trong mạng nơ-ron là gì và vai trò của nó trong việc xử lý ngôn ngữ tự nhiên như thế nào?
+	•	Training vs Inference: Quá trình Huấn luyện (Training) và Suy luận (Inference) khác nhau như thế nào về mục đích và mức tiêu tốn tài nguyên?
+	•	Model Landscape: Sự khác biệt về thế mạnh giữa các dòng mô hình chủ đạo (OpenAI GPT, Anthropic Claude, Google Gemini) là gì? Tại sao mỗi mô hình lại phù hợp cho một loại tác vụ khác nhau (Sáng tạo vs Lập trình vs Phân tích dữ liệu lớn)?
+	•	Multimodality (Đa phương thức): AI đa phương thức là gì? Việc AI có thể "nhìn" (Vision), "nghe" (Audio) và "nói" (Voice) thay đổi cách chúng ta tương tác và giải quyết công việc như thế nào so với chỉ dùng văn bản?
+2. Cơ chế hoạt động của LLM
+	•	Next Token Prediction: Cơ chế "Dự đoán Token tiếp theo" hoạt động như thế nào và tại sao nói AI là một "cỗ máy xác suất"?
+	•	Fluency vs. Factuality: Tại sao các mô hình AI thường ưu tiên độ mượt mà (Fluency) hơn tính chính xác (Factuality), và điều này dẫn đến ảo giác như thế nào?
+	•	Data Compression (Nén dữ liệu): Khái niệm nén dữ liệu trong AI là gì? Tại sao nói AI lưu trữ "mối liên kết" (Patterns) thay vì cơ sở dữ liệu (Facts)?
+	•	Hallucination: Hiện tượng "Ảo giác" trong AI là gì và tại sao nó xảy ra?
+3. Các tham số cấu hình (Hyperparameters)
+	•	Temperature: Tham số Temperature ảnh hưởng như thế nào đến độ ngẫu nhiên và tính sáng tạo của câu trả lời? Chuyện gì xảy ra khi set Temperature = 0 và Temperature = 1?
+	•	Top-P (Nucleus Sampling): Kỹ thuật lấy mẫu Top-P hoạt động ra sao trong việc lựa chọn từ ngữ?
+	•	Top-K: Tham số Top-K giới hạn việc chọn từ như thế nào?
+	•	Stop Sequences đóng vai trò gì trong việc kiểm soát độ dài câu trả lời?
+	•	Kỹ thuật "Best Of / N" là gì? Ưu và nhược điểm của nó về mặt chi phí token?
+4. Cơ chế Ngữ cảnh (Context Mechanics)
+	•	Context Window (Cửa sổ ngữ cảnh): Context Window trong các model AI là gì và nó giới hạn bộ nhớ ngắn hạn ra sao? Điều gì xảy ra khi hội thoại vượt quá giới hạn Context Window?
+	•	Context Caching: Kỹ thuật Context Caching giúp giảm chi phí và tối ưu hiệu năng như thế nào?
+	•	Lost in the Middle: Hiện tượng "Lạc lối ở giữa" (Lost in the Middle) hay đường cong hiệu suất hình chữ U (U-Shaped Performance Curve) là gì?
+	•	Primacy Bias & Recency Bias: Thiên kiến ưu tiên thông tin đầu (Primacy Bias) và thông tin mới nhất (Recency Bias) ảnh hưởng thế nào đến câu trả lời của AI?
+
+5. Các chỉ số hiệu năng & Đo lường
+	•	Max Tokens / Min Tokens: Ý nghĩa của giới hạn Max Tokens và Min Tokens trong đầu ra là gì?
+6. Tìm hiểu về các Model AI  -  Model Landscape: Các mô hình AI phổ biến nhất hiện nay (GPT, Claude, Gemini, midjourney, sona, kling,....) có thế mạnh đặc thù là gì? Khi nào tôi nên dùng ChatGPT, khi nào dùng Claude, khi nào dùng Gemini,.....?
+ - Multimodal AI (Đa phương thức): Khả năng xử lý đa phương thức (Văn bản, Hình ảnh, Âm thanh, Video) của AI hoạt động thế nào? Làm sao để ứng dụng Vision (thị giác máy tính) vào xử lý tài liệu hóa đơn, chứng từ
+- Video Generation Models (Kling, Sora, Gen-3): Sự khác biệt về cơ chế vật lý (Physics simulation) trong các model tạo video là gì? Tại sao chúng hiểu được chuyển động của vật thể?
+
+
+
+
+MODULE 2: KỸ NGHỆ PROMPT NÂNG CAO (ADVANCED PROMPT ENGINEERING)
+
+1.  Tư duy promt
+	•	AI Delegation Mindset: Làm sao để phân loại một công việc là "thích hợp cho AI"? (Các tiêu chí như: lặp lại, dựa trên quy tắc, hay cần sáng tạo?).
+	•	Iterative Refinement (Tinh chỉnh lặp lại): Tại sao hiếm khi AI đưa ra kết quả hoàn hảo ngay lần đầu? Quy trình "Chat - Review - Feedback" quan trọng như thế nào so với việc cố viết một prompt dài hoàn hảo ngay từ đầu?
+	•	Human-AI Collaboration: Tư duy "Cầm tay chỉ việc" khác gì với "Ra lệnh một lần"? Tại sao quy trình tương tác lặp lại (Iterative Process) thường hiệu quả hơn việc cố gắng viết một Prompt hoàn hảo duy nhất?
+2. Các Frameworks tiêu chuẩn
+	•	R-C-O / R-C-T-C-O: Các thành phần trong framework R-C-O (Role, Context, Output) hoặc R-C-T-C-O là gì và cách áp dụng?
+	•	Sandwich Prompting: Kỹ thuật Sandwich Prompting là gì và nó giúp tránh hiện tượng "Lost in the Middle" như thế nào?
+	•	Delimiters / XML Tags: Vai trò của các dấu phân cách (Delimiters) hoặc thẻ XML trong việc phân tách dữ liệu cho AI là gì? Tại sao nó có thể giúp ngăn chặn Prompt Injection?
+	•	
+2. Các kỹ thuật kích thích tư duy
+	•	Zero-shot / Few-shot Prompting: Kỹ thuật In-context Learning thông qua Zero-shot và Few-shot Prompting là gì?
+	•	Chain of Thought (CoT): Kỹ thuật Chain of Thought kích hoạt tư duy logic (System 2) của AI như thế nào? Tại sao câu thần chú "Let's think step by step" lại giúp AI thông minh hơn?
+	•	ReAct Prompting: Phương pháp ReAct (Reason + Act) kết hợp suy luận và hành động ra sao?
+	•	Emotional Prompting: Tại sao việc thêm các yếu tố cảm xúc (Emotional Prompting) lại có thể tăng độ tập trung của AI?
+	•	Recency Instruction: Kỹ thuật nhắc lại yêu cầu ở cuối (Recency Instruction) có tác dụng gì?
+	•	Role Prompting: Kỹ thuật nhập vai (Role Prompting) giúp định hình câu trả lời thế nào?
+	•	Tree of Thoughts (ToT): Kỹ thuật Tree of Thoughts hoạt động ra sao trong việc giải quyết các bài toán phức tạp?
+	•	System Prompt: System Prompt khác gì với User Prompt và nó định hình hành vi cốt lõi của AI như thế nào?
+3. Kiểm soát chất lượng & Rủi ro
+	•	Chain of Verification (CoV): Quy trình Chain of Verification giúp AI tự rà soát lỗi sai như thế nào? Prompt Injection (Tiêm câu lệnh) là gì? Cơ chế nào khiến người dùng có thể lợi dụng nó để 'đánh lừa' AI bỏ qua các quy tắc an toàn (System Prompt) ban đầu và thực hiện các hành vi không mong muốn? và làm thế nào để phòng chống?
+	•	Sycophancy: Hiện tượng AI "nịnh nọt" (Sycophancy) người dùng là gì và tại sao nó nguy hiểm? Data Privacy (Bảo mật dữ liệu): Dữ liệu tôi chat với các bản AI miễn phí/công cộng (Public) có bị dùng để train lại cho mô hình không? Những model AI nào cam kết hoặc cách nào để các model AI không dùng dữ liệu chat của tôi để train model?
+4. Kỹ thuật chống Ảo giác
+	•	Grounding Prompting: Kỹ thuật Grounding Prompting yêu cầu AI trả lời dựa trên "Ground Truth" như thế nào?
+	•	Self-Critique: Kỹ thuật yêu cầu AI tự phê bình (Brainstorm lại kết quả) trước khi đưa ra câu trả lời cuối cùng là gì?
+	•	Step-by-step Logic: Tại sao việc bắt buộc AI hiển thị quá trình tính toán logic từng bước lại giảm thiểu sai sót?
+
+
+
+MODULE 3: XÂY DỰNG TRỢ LÝ, TỐI ƯU HÓA & DỮ LIỆU (RAG & FINE-TUNING)
+1. Định hình Trợ lý (Assistant Design)
+	•	Assistant Persona: Các yếu tố cấu thành nên danh tính và giọng văn (Tone of voice) của một trợ lý AI là gì?
+	•	Knowledge Base: Cơ sở tri thức (Knowledge Base) cho AI bao gồm những định dạng dữ liệu nào?
+2. RAG (Retrieval-Augmented Generation) và Fine-tuning
+	•	RAG là gì ?  Fine-tuning là gì ?
+	•	RAG Mechanism: Cơ chế Retrieve (Tìm kiếm) - Augment (Tăng cường) - Generate (Tổng hợp) hoạt động như thế nào?
+	•	Embeddings & Vector Database: Embeddings là gì? Vector Database lưu trữ và tìm kiếm sự tương đồng ngữ nghĩa ra sao?
+	•	Chunking Strategy: Chiến lược cắt nhỏ dữ liệu (Semantic Chunking) ảnh hưởng thế nào đến độ chính xác khi tìm kiếm?
+	•	Metadata Filtering: Lọc dữ liệu theo Metadata (Metadata Filtering) giúp ích gì cho RAG?
+	•	Semantic Search vs Keyword Matching: Tìm kiếm theo ngữ nghĩa (Semantic Search) khác gì so với khớp từ khóa truyền thống?
+	•	Re-ranking: Kỹ thuật Re-ranking (chấm điểm lại) giúp cải thiện kết quả tìm kiếm như thế nào?
+	•	Grounding in RAG: Kỹ thuật neo câu trả lời (Grounding) vào dữ liệu tìm được hoạt động ra sao?
+	•	Garbage In, Garbage Out: Nguyên lý "Rác vào - Rác ra" áp dụng thế nào trong dữ liệu cho RAG? RAG vs Fine-tuning: Khi nào nên sử dụng RAG và khi nào nên sử dụng Fine-tuning?
+RAG Failure Modes (Các điểm chết của RAG):
+	•	Retrieval Error (Lỗi tìm kiếm): Tại sao khi hệ thống tìm sai đoạn tài liệu (do cắt đoạn chunking tồi hoặc từ khóa không khớp), AI lại dễ bị "ảo giác" hoặc trả lời sai theo dữ liệu rác đó?
+	•	Context Conflict: Khi thông tin trong tài liệu RAG mâu thuẫn với "kiến thức nền" mà AI đã được học từ trước, AI sẽ ưu tiên cái nào?
+
+
+3.Fine-tuning ( Phần tìm hiểu sâu hơn dành riêng cho đội Tech )
+	•	Fine-tuning Mechanism: Quá trình dạy lại mô hình (Fine-tuning) với dữ liệu được dán nhãn diễn ra như thế nào?
+	•	PEFT & LoRA/QLoRA: Các kỹ thuật PEFT, LoRA và QLoRA giúp tinh chỉnh mô hình hiệu quả và tiết kiệm tài nguyên như thế nào?
+	•	Catastrophic Forgetting: Hiện tượng "Quên kiến thức cũ" (Catastrophic forgetting) là gì và làm sao để hạn chế?
+	•	Domain Adaptation: Huấn luyện thích ứng miền (Domain Adaptation) là gì?
+	•	RLHF: Học tăng cường từ phản hồi con người (RLHF) đóng vai trò gì trong Fine-tuning?
+	•	Overfitting: Hiện tượng quá khớp (Overfitting) là gì và tại sao nó làm mất tính linh hoạt của AI?
+
+
+
+MODULE 4: AI AGENT & HỆ THỐNG TỰ ĐỘNG (AGENTIC AI)
+1. Cấu trúc một AI Agent
+	•	Sự khác biệt cốt lõi giữa Chatbot và AI Agent là gì?
+	•	Agent Architecture: Các thành phần cốt lõi của một AI Agent (Brain, Memory, Tools, Planning) là gì?
+	•	Function Calling: Khả năng gọi công cụ (Tools / Function Calling) cho phép AI làm được những gì? Làm sao AI biết khi nào cần dùng công cụ (ví dụ: Google Search, Calculator)?
+2. Agent Skills (Kỹ năng của Agent):
+	•	Skill Definition: "Skill" (Kỹ năng) của một Agent khác gì với "Knowledge" (Kiến thức)? (Ví dụ: Biết công thức Excel là kiến thức, nhưng khả năng tự mở file Excel lên và điền công thức vào là Kỹ năng/Tool).
+	•	Tool Use / Function Calling: Cơ chế nào giúp một mô hình ngôn ngữ "biết" mình có kỹ năng gì để lôi ra sử dụng đúng lúc?
+3. Cơ chế hoạt động
+	•	ReAct Loop: Vòng lặp ReAct (Quan sát - Suy nghĩ - Hành động) vận hành như thế nào?
+	•	Reflection & Self-Correction: Cơ chế tự nhìn nhận và sửa lỗi (Reflection & Self-Correction) của Agent hoạt động ra sao?
+	•	System 1 vs System 2: Sự khác biệt giữa tư duy nhanh (System 1) và tư duy chậm/suy luận (System 2) trong các mô hình như OpenAI o1 là gì?
+4. Các chỉ số đo lường Agent
+	•	Success Rate: Tỷ lệ thành công (Success Rate) của Agent được đo lường như thế nào?
+	•	Context Window Utilization: Mức độ tiêu thụ ngữ cảnh của Agent có ý nghĩa gì?
+	•	Token Overhead: Lượng Token phát sinh thêm (Token Overhead) ảnh hưởng thế nào đến chi phí?
+	•	HITL (Human-in-the-Loop): Tại sao con người (HITL) luôn cần là chốt chặn cuối cùng trong hệ thống tự động?
+
+
+
+MODULE 5: KẾT NỐI HỆ THỐNG (MCP & INTEGRATION)
+1. Model Context Protocol (MCP)
+	•	Model Context Protocol (MCP): Giao thức MCP là gì và nó giải quyết vấn đề "M x N" trong kết nối dữ liệu như thế nào?
+	•	MCP Components: Vai trò của MCP Host, MCP Client và MCP Server là gì?
+2. Giao diện & Tương tác
+	•	Web Interface vs API: Khi nào nên dùng giao diện Web và khi nào cần tích hợp qua API?
+	•	SLM (Small Language Models): Mô hình ngôn ngữ nhỏ (SLM) là gì và lợi ích của việc chạy on-device?
+	•	AI Automation Workflow: Sự kết hợp giữa AI và các công cụ tự động hóa (No-code Automation) giúp loại bỏ các tác vụ thủ công như thế nào? (Ví dụ: Tự động tóm tắt email và lưu vào Notion).
+
+
+
+MODULE 6: HỆ THỐNG ĐA TÁC NHÂN (MULTI-AGENT SYSTEM - MAS)
+1. Các mô hình phối hợp
+	•	Khái niệm Agent-to-Agent (A2A) là gì?
+	•	Hierarchical Model: Mô hình phân cấp (Hierarchical) với Agent sếp và nhân viên hoạt động như thế nào?
+	•	Sequential Model: Mô hình tuần tự (Sequential) hoạt động theo dây chuyền ra sao?
+	•	Hybrid Model: Mô hình hỗn hợp trong đa tác nhân là gì?
+2. Cơ chế vận hành
+	•	Orchestration: Cơ chế điều phối (Orchestration) quản lý luồng công việc giữa các Agent như thế nào?
+	•	Hand-off: Quy trình bàn giao (Hand-off) ngữ cảnh từ Agent này sang Agent khác diễn ra ra sao?
+	•	Capability Discovery: Khả năng tự phát hiện (Capability Discovery) của các Agent trong mạng lưới là gì?
+	•	Interoperability: Khả năng tương tác liên thông (Interoperability) giữa các hệ sinh thái Agent khác nhau là gì?  
+
+Module 7 và 8 dành riêng cho đội MKT, Media.
+MODULE 7: AI ĐA PHƯƠNG TIỆN (IMAGE, VIDEO & AUDIO)
+1. Cơ chế tạo ảnh (Image Generation)
+	•	Diffusion Model (Mô hình khuếch tán): Khác với LLM (dự đoán từ tiếp theo), mô hình tạo ảnh hoạt động theo cơ chế "khử nhiễu" (Denoising) như thế nào? Tại sao nó lại giống như việc nhìn vào đám mây và tưởng tượng ra hình thù, sau đó vẽ rõ nét dần lên?
+	◦	Lý do cần biết: Để hiểu tại sao AI vẽ ảnh đôi khi bị "thừa ngón tay", "méo mặt" hoặc các chi tiết nhỏ bị nhòe (do nó đang cố gắng định hình từ sự hỗn độn chứ không phải ghép ảnh có sẵn).
+	•	Text-to-Image vs Image-to-Image: Sự khác biệt giữa việc ra lệnh bằng chữ (Text-to-Image) và việc dùng một bức ảnh có sẵn làm đề bài (Image-to-Image) là gì?
+	◦	Lý do cần biết: Ứng dụng khi cần biến một bản vẽ phác thảo tay trên giấy thành ảnh thật (dùng Image-to-Image) thay vì cố tả bằng lời.
+	•	Negative Prompt (Câu lệnh phủ định): Negative Prompt là gì và tại sao việc nói cho AI biết "không được vẽ cái gì" (ví dụ: no blur, bad anatomy, low resolution) lại quan trọng ngang với việc bảo nó vẽ cái gì?
+	◦	Lý do cần biết: Giúp loại bỏ các lỗi sai thường gặp để ảnh sạch và chuyên nghiệp hơn.
+2. Các kỹ thuật chỉnh sửa & Kiểm soát (Editing & Control)
+	•	Inpainting (Vẽ đè/Sửa cục bộ): Kỹ thuật Inpainting cho phép khoanh vùng một chi tiết nhỏ (ví dụ: cái áo, bàn tay) và yêu cầu AI vẽ lại chỉ chỗ đó hoạt động ra sao?
+	◦	Lý do cần biết: Cực kỳ quan trọng trong thực tế. Thay vì tạo lại cả bức ảnh tốn tiền và mất bố cục đẹp, nhân sự biết cách chỉ sửa cái logo trên áo hoặc thay đổi khuôn mặt người mẫu.
+	•	Outpainting (Mở rộng khung hình): Kỹ thuật Outpainting giúp mở rộng bối cảnh của một bức ảnh (ví dụ: từ ảnh chân dung dọc thành ảnh ngang 16:9) như thế nào?
+	◦	Lý do cần biết: Ứng dụng khi cần resize ảnh để chạy quảng cáo trên các nền tảng khác nhau mà không bị cắt mất chi tiết (VD: chuyển ảnh TikTok sang ảnh bìa Youtube).
+	•	Consistency (Tính nhất quán nhân vật/Phong cách): Khái niệm "Character Reference" (Tham chiếu nhân vật) và "Style Reference" (Tham chiếu phong cách) là gì? Làm sao để AI vẽ 10 bức ảnh khác nhau nhưng vẫn là cùng một người, cùng một bộ quần áo?
+	◦	Lý do cần biết: Đây là "chén thánh" của làm thương hiệu (Branding) và truyện tranh. Nhân sự cần hiểu để không tạo ra linh vật thương hiệu "lúc béo lúc gầy".
+	•	Structure Reference / ControlNet: Làm thế nào để bắt AI vẽ một người mẫu mới nhưng giữ nguyên tư thế (pose) hoặc bố cục (composition) của ảnh gốc?
+	◦	Lý do cần biết: Ứng dụng khi muốn thay người mẫu tây thành người mẫu việt nhưng vẫn giữ nguyên dáng đứng cầm sản phẩm.
+3. Video & Chuyển động (Video Generation)
+	•	Temporal Consistency (Tính nhất quán theo thời gian): Trong AI Video, tại sao giữ cho khuôn mặt nhân vật không bị biến dạng (flickering) giữa các giây là bài toán khó nhất?
+	◦	Lý do cần biết: Để hiểu tại sao video AI hiện tại thường ngắn (5-10s) và nếu làm video dài thì nhân vật dễ bị biến hình.
+	•	Image-to-Video: Tại sao quy trình chuẩn hiện nay thường là tạo ảnh đẹp trước (Midjourney/Flux) rồi mới chuyển thành video (Runway/Kling) thay vì gõ text để tạo video ngay từ đầu?
+	◦	Lý do cần biết: Tối ưu quy trình làm việc. Kiểm soát chất lượng khung hình đầu tiên là cách tốt nhất để kiểm soát cả video.
+	•	Physics Simulation (Mô phỏng vật lý): Khả năng hiểu vật lý của AI (ví dụ: nước chảy xuống, tóc bay trong gió, phản chiếu gương) quan trọng thế nào để video trông "thật"?
+	◦	Lý do cần biết: Để đánh giá chất lượng model. Model tốt là model hiểu vật lý (Sora, Kling), model kém sẽ làm vật thể chuyển động méo mó phi logic.
+4. Độ phân giải & Chất lượng (Upscaling)
+	•	Upscaling (Nâng cấp độ phân giải): Tại sao ảnh/video AI tạo ra thường có độ phân giải thấp (720p hoặc 1024px)? Upscaling AI hoạt động thế nào để phóng to ảnh in ấn mà không bị vỡ hạt?
+	◦	Lý do cần biết: Bắt buộc phải biết nếu muốn dùng ảnh AI để in Poster, Standee hoặc làm video 4K, vì ảnh gốc từ AI thường không đủ chất lượng in ấn.
+MODULE 8: AI ÂM THANH & GIỌNG NÓI (AUDIO & VOICE AI)
+1. Công nghệ Giọng nói (Speech AI)
+	•	Text-to-Speech (TTS) & Speech-to-Text (STT):
+	◦	Câu hỏi: Sự khác biệt giữa công nghệ chuyển văn bản thành giọng nói (TTS) và giọng nói thành văn bản (STT) là gì? Tại sao các model STT hiện đại (như Whisper) có thể nghe được cả giọng địa phương, tiếng lóng và lọc được tiếng ồn môi trường?
+	◦	Tại sao cần biết: Để ứng dụng vào việc tự động bóc băng ghi âm cuộc họp (Meeting Notes) hoặc làm phụ đề tự động cho video mà không cần gõ tay.
+	•	Voice Cloning (Nhân bản giọng nói):
+	◦	Câu hỏi: Cơ chế "Zero-shot Voice Cloning" hoạt động như thế nào để AI có thể bắt chước giọng của một người chỉ qua 3-5 giây mẫu thử? Sự khác biệt giữa giọng clone "mì ăn liền" và giọng clone chuyên nghiệp (Professional Voice Cloning) được huấn luyện kỹ lưỡng là gì?
+	◦	Tại sao cần biết: Để tạo ra các video đào tạo nội bộ, video marketing mà Sếp không cần phải thu âm trực tiếp mỗi lần, chỉ cần gõ văn bản là có giọng Sếp đọc.
+	•	Prosody & Emotion (Ngữ điệu & Cảm xúc):
+	◦	Câu hỏi: Làm thế nào để điều khiển AI đọc một câu văn với các trạng thái cảm xúc khác nhau (giận dữ, thì thầm, hào hứng) thay vì giọng đều đều như robot? Các thẻ điều khiển (như <break time="1s"/> hay [happy]) hoạt động ra sao?
+	◦	Tại sao cần biết: Để làm cho nội dung Podcast hoặc Video TikTok nghe tự nhiên, cuốn hút hơn, không bị "giả trân".
+2. Công nghệ Âm nhạc & Hiệu ứng (Music & SFX)
+	•	AI Music Structure (Cấu trúc nhạc AI):
+	◦	Câu hỏi: Các mô hình tạo nhạc (như Suno, Udio) hiểu về cấu trúc bài hát (Intro, Verse, Chorus, Bridge, Outro) như thế nào? Làm sao để yêu cầu AI tạo ra đúng đoạn điệp khúc cao trào ở giây thứ 30?
+	◦	Tại sao cần biết: Để tự tạo nhạc nền bản quyền riêng cho video giới thiệu sản phẩm/công ty mà không lo bị YouTube/Facebook đánh gậy bản quyền âm nhạc.
+	•	Sound Effects Generation (Tạo hiệu ứng âm thanh):
+	◦	Câu hỏi: Audio-to-Audio hoặc Text-to-SFX là gì? Làm sao để tạo ra tiếng bước chân, tiếng mưa rơi, hay tiếng động cơ xe cụ thể cho video chỉ bằng câu lệnh?
+	◦	Tại sao cần biết: Hỗ trợ đội ngũ Editor làm video nhanh hơn, không phải đi tìm file âm thanh trên mạng.
+3. Giao tiếp Thời gian thực (Real-time Interaction)
+	•	Latency (Độ trễ) & End-to-End Models:
+	◦	Câu hỏi: Sự khác biệt giữa quy trình cũ (Nghe -> Chuyển thành chữ -> LLM suy nghĩ -> Chuyển thành giọng nói) và quy trình "Native Audio" mới (như GPT-4o, Gemini Live) là gì? Tại sao mô hình mới cho phép ta ngắt lời (interrupt) AI khi nó đang nói mà nó vẫn hiểu?
+	◦	Tại sao cần biết: Để ứng dụng vào làm Lễ tân ảo hoặc CSKH qua điện thoại, nơi tốc độ phản hồi phải nhanh như người thật nói chuyện.
+ 
+Module 9-10 dành riêng cho đội Product / UIUX coder
+
+BỔ SUNG MODULE 9: AI CHO UI/UX & PRODUCT MANAGEMENT
+Mục tiêu: Hiểu cách AI tham gia vào quy trình phát triển sản phẩm, từ ý tưởng đến giao diện, và cách nó thay đổi trải nghiệm người dùng cuối.
+1. Generative UI (Giao diện sinh tạo)
+	•	Dynamic Interface: Khái niệm "Giao diện động" (Generative UI) là gì? Tại sao trong tương lai, mỗi người dùng có thể nhìn thấy một giao diện App/Web khác nhau, được AI tự vẽ ra dựa trên thói quen và nhu cầu tức thời của họ, thay vì một giao diện tĩnh cố định cho tất cả mọi người?
+	•	Component Generation: AI có thể giúp tạo ra các biến thể (variants) của một thành phần UI (ví dụ: nút bấm, card sản phẩm) dựa trên Design System có sẵn như thế nào để Designer không phải vẽ tay từng cái?
+	•	Text-to-Design / Wireframing: Các công cụ (như Galileo AI, Uizard) chuyển từ văn bản mô tả (Prompt) sang bản vẽ khung (Wireframe) hoặc thiết kế UI hoàn chỉnh hoạt động dựa trên cơ chế nào? Khi nào nên dùng nó để brainstorm nhanh, và khi nào vẫn cần Designer can thiệp thủ công?
+2. AI trong Trải nghiệm người dùng (UX & Research)
+	•	Synthetic Users (Người dùng giả lập): Khái niệm "Synthetic User Testing" là gì? Tại sao ta có thể dùng AI đóng vai các nhóm khách hàng khác nhau (Persona) để test thử phản ứng với sản phẩm/tính năng mới trước khi tung ra thị trường thật? Độ tin cậy của phương pháp này đến đâu?
+	•	Micro-interactions: AI có thể dự đoán hành vi người dùng (Predictive UX) để tự động đề xuất hành động tiếp theo (Next Action) hoặc điền sẵn thông tin (Auto-fill) thông minh hơn các thuật toán cũ như thế nào?
+	•	Accessibility (Khả năng tiếp cận): AI giúp cải thiện trải nghiệm cho người khiếm thị/khiếm thính (như tự động sinh Alt Text cho ảnh, tóm tắt nội dung dài, điều khiển bằng giọng nói tự nhiên) hiệu quả hơn các công cụ truyền thống ra sao?
+3. Tư duy Sản phẩm (Product Thinking)
+	•	AI-First Product: Sự khác biệt tư duy giữa việc "Thêm tính năng AI vào sản phẩm cũ" (AI Feature) và "Xây dựng sản phẩm dựa trên cốt lõi AI" (AI-Native Product) là gì?
+	•	Latent Needs Discovery: Làm sao để dùng AI phân tích hàng nghìn feedback của khách hàng để tìm ra "nhu cầu ẩn giấu" (Latent Needs) mà chính khách hàng cũng không nói ra, từ đó đề xuất tính năng mới?
+
+
+
+BỔ SUNG MODULE 10: AI CHO LẬP TRÌNH VIÊN (CODING & ENGINEERING)
+Mục tiêu: Hiểu sâu về cách LLM viết code, cách cộng tác với nó (Pair Programming), và định hình lại tư duy nghề nghiệp.
+1. Cơ chế Coding của AI
+	•	Code Understanding vs Text Understanding: Tại sao các mô hình LLM lại giỏi viết code (Python, JS) hơn viết văn? Cấu trúc logic chặt chẽ của ngôn ngữ lập trình giúp AI "học" và "dự đoán" code dễ hơn ngôn ngữ tự nhiên như thế nào?
+	•	Context Awareness in Code: Khi ném cả một dự án (Repository) vào AI, nó hiểu mối liên hệ giữa các file (Dependency Graph) như thế nào để khi sửa file A, nó biết phải sửa cả file B và C cho đồng bộ?
+	•	Debugging Logic: Tại sao AI lại giỏi việc tìm lỗi (Debug) và giải thích lỗi (Explain Code) hơn là tự viết ra một kiến trúc hệ thống hoàn chỉnh từ đầu?
+2. Kỹ thuật Cộng tác (AI-Assisted Development)
+	•	Copilot / Pair Programmer: Tư duy "Lập trình cặp" (Pair Programming) với AI khác gì với việc copy-paste code từ StackOverflow? Tại sao Developer cần đóng vai trò là "Reviewer" (Người kiểm duyệt) và "Architect" (Kiến trúc sư) thay vì là người gõ code (Coder)?
+	•	Boilerplate Reduction: AI giúp loại bỏ các công việc lặp lại nhàm chán (như viết Unit Test, viết Documentation, tạo cấu trúc CRUD cơ bản) như thế nào để Developer tập trung vào logic nghiệp vụ khó?
+	•	Refactoring & Optimization: Làm sao để dùng AI để tối ưu hóa code cũ (Legacy Code), giúp nó chạy nhanh hơn hoặc dễ đọc hơn mà không làm thay đổi tính năng?
+3. Tương lai ngành Lập trình (Future of Coding)
+	•	Natural Language Programming: Liệu trong tương lai, ngôn ngữ lập trình phổ biến nhất có phải là "Tiếng Anh" (hoặc Tiếng Việt)? Khi rào cản cú pháp (Syntax) biến mất, kỹ năng cốt lõi của một Developer sẽ chuyển dịch từ "biết viết code" sang "biết tư duy hệ thống" và "biết kiểm định code" như thế nào?
+	•	Software 2.0: Khái niệm "Software 2.0" (nơi phần mềm được viết bởi dữ liệu và neural networks thay vì code thủ công) sẽ thay đổi cách chúng ta bảo trì và nâng cấp phần mềm ra sao?
+
