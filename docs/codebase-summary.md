@@ -1,7 +1,7 @@
 # Codebase Summary
 
 **Project:** template-client-shadcn-vue (smit-chat)
-**Last Updated:** 2026-02-04
+**Last Updated:** 2026-03-16
 
 ## Project Overview
 
@@ -24,16 +24,17 @@ template-client-shadcn-vue/
 │   │   └── user.ts                      # User store (userName, email, company)
 │   │
 │   ├── layout/
-│   │   ├── index.vue                    # Main app layout wrapper
-│   │   └── sidebar/
-│   │       ├── Sidebar.vue
-│   │       └── SidebarItem.vue
+│   │   └── index.vue                    # Main app layout (header + sidebar + router-view)
 │   │
 │   ├── pages/
 │   │   ├── Home.vue                     # Landing page with login
 │   │   ├── app/                         # Protected app pages
-│   │   │   ├── Staff.vue
-│   │   │   └── [other pages]
+│   │   │   ├── ChatPage.vue             # Main chat (default: /app/chat)
+│   │   │   ├── ConnectPage.vue          # Platform connections /app/connect
+│   │   │   ├── ContactsPage.vue         # Contacts /app/contacts
+│   │   │   ├── HistoryPage.vue          # Chat history /app/history
+│   │   │   ├── StaffPage.vue            # Staff management /app/staff
+│   │   │   └── SettingsPage.vue         # Settings /app/settings
 │   │   └── auth/                        # Auth pages
 │   │       ├── Login.vue
 │   │       └── Register.vue
@@ -84,6 +85,12 @@ template-client-shadcn-vue/
 │   │   │   ├── Box.vue
 │   │   │   └── [more]
 │   │   │
+│   │   ├── sidebar/                     # Sidebar navigation components
+│   │   │   ├── AppSidebar.vue
+│   │   │   ├── NavItem.vue
+│   │   │   ├── SidebarUser.vue
+│   │   │   └── index.ts
+│   │   │
 │   │   ├── auth/                        # Auth-specific components
 │   │   │   ├── LoginForm.vue
 │   │   │   └── [auth components]
@@ -101,7 +108,8 @@ template-client-shadcn-vue/
 │   │
 │   ├── composables/
 │   │   ├── useTheme.ts                  # Dark/light theme toggle logic
-│   │   └── useSprite.ts                 # SVG sprite loading
+│   │   ├── useSprite.ts                 # SVG sprite loading
+│   │   └── useSidebar.ts                # Sidebar state management
 │   │
 │   ├── controllers/
 │   │   └── global.js                    # Axios API wrapper
@@ -566,12 +574,40 @@ npm run preview
 - Configs: Root level (.ts, .json files)
 - Assets: `/public` and `/src/assets`
 
+## Completed Features
+
+### Registration UI (2026-02-10)
+- 2-column layout (form + illustration)
+- Glass effect background
+- Form validation (email, password, confirm password)
+- Responsive design
+
+### Sidebar Navigation (2026-03-16)
+- **Collapsed state:** 56px width (icon + tooltip only)
+- **Expanded state:** 200px width (icon + label visible)
+- **Hover-to-expand:** 500ms delay to expand, lock toggle available
+- **Sliding indicator:** Smooth translateY animation (300ms) to active nav item
+- **Glass effect:** Transparent background with backdrop blur
+- **6 menu items:**
+  - Kết nối nền tảng → `/app/connect`
+  - Chat → `/app/chat` (default)
+  - Danh bạ → `/app/contacts`
+  - Lịch sử → `/app/history`
+  - Nhân viên → `/app/staff`
+  - Cài đặt → `/app/settings`
+- **User section:** Avatar + name/role at bottom
+- **Composable:** `useSidebar()` manages state (is_expanded, is_locked, active_index)
+- **Components:** AppSidebar.vue, SidebarItem.vue
+- **Icons:** logo, global, chatting-01, contact-01, history, user-multiple, setting-01
+- **Full docs:** See `docs/sidebar/README.md`
+
 ## Next Steps for New Developers
 
 1. Read `docs/project-overview-pdr.md` - Understand project goals
 2. Read `docs/code-standards.md` - Learn coding conventions
 3. Read `docs/system-architecture.md` - Understand data flow
-4. Run `npm install && npm run dev` - Start dev server
-5. Run `npm run test` - See tests passing
-6. Make small changes to understand the workflow
-7. Refer to existing components/pages as patterns
+4. Review `docs/sidebar/README.md` - Learn about sidebar implementation
+5. Run `npm install && npm run dev` - Start dev server
+6. Run `npm run test` - See tests passing
+7. Make small changes to understand the workflow
+8. Refer to existing components/pages as patterns
