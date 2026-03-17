@@ -1,7 +1,7 @@
 # Codebase Summary
 
 **Project:** template-client-shadcn-vue (smit-chat)
-**Last Updated:** 2026-03-16
+**Last Updated:** 2026-03-17
 
 ## Project Overview
 
@@ -86,10 +86,8 @@ template-client-shadcn-vue/
 │   │   │   └── [more]
 │   │   │
 │   │   ├── sidebar/                     # Sidebar navigation components
-│   │   │   ├── AppSidebar.vue
-│   │   │   ├── NavItem.vue
-│   │   │   ├── SidebarUser.vue
-│   │   │   └── index.ts
+│   │   │   ├── Sidebar.vue              # Main sidebar component (hover, indicator, menu)
+│   │   │   └── SidebarItem.vue          # Menu item (inline usage)
 │   │   │
 │   │   ├── auth/                        # Auth-specific components
 │   │   │   ├── LoginForm.vue
@@ -582,32 +580,52 @@ npm run preview
 - Form validation (email, password, confirm password)
 - Responsive design
 
-### Sidebar Navigation (2026-03-16)
-- **Collapsed state:** 56px width (icon + tooltip only)
-- **Expanded state:** 200px width (icon + label visible)
-- **Hover-to-expand:** 500ms delay to expand, lock toggle available
-- **Sliding indicator:** Smooth translateY animation (300ms) to active nav item
-- **Glass effect:** Transparent background with backdrop blur
-- **6 menu items:**
+### Sidebar Navigation (2026-03-17)
+- **Collapsed state:** 56px width (icon only, text opacity 0%)
+- **Expanded state:** 200px width (icon + label, text opacity 100%)
+- **Hover-to-expand:** 300ms delay, auto-collapse on mouse leave
+- **Sliding indicator:** Smooth translateY animation (300ms), gradient background
+- **6 menu items with routes:**
   - Kết nối nền tảng → `/app/connect`
   - Chat → `/app/chat` (default)
   - Danh bạ → `/app/contacts`
   - Lịch sử → `/app/history`
   - Nhân viên → `/app/staff`
   - Cài đặt → `/app/settings`
-- **User section:** Avatar + name/role at bottom
-- **Composable:** `useSidebar()` manages state (is_expanded, is_locked, active_index)
-- **Components:** AppSidebar.vue, SidebarItem.vue
-- **Icons:** logo, global, chatting-01, contact-01, history, user-multiple, setting-01
-- **Full docs:** See `docs/sidebar/README.md`
+- **User section:** Avatar (7x7) + name/role at bottom
+- **Components:** Sidebar.vue (main), SidebarItem.vue (not used - inlined)
+- **Icons:** logo, layers-01, chatting-01, contact-01, clock-01, user-multiple, setting-01
+- **Indicator calculation:** DOM-based getBoundingClientRect with fallback
+- **Full documentation:** See `docs/sidebar/README.md`
+
+## Completed Features Details
+
+### Features Overview
+
+#### 1. Registration UI (2026-02-10)
+- 2-column layout with form and illustration
+- Glass effect background
+- Zod form validation (email, password, confirm password)
+- Responsive design
+
+#### 2. Sidebar Navigation (2026-03-17)
+- Collapsible sidebar with hover expand (56px → 200px)
+- 6 main menu items with routing
+- Sliding active indicator with gradient
+- User section with avatar and details
+- SVG sprite icons
+- DOM-based indicator position calculation
+- See full docs: `docs/sidebar/README.md`
+
+---
 
 ## Next Steps for New Developers
 
 1. Read `docs/project-overview-pdr.md` - Understand project goals
 2. Read `docs/code-standards.md` - Learn coding conventions
 3. Read `docs/system-architecture.md` - Understand data flow
-4. Review `docs/sidebar/README.md` - Learn about sidebar implementation
+4. Read `docs/sidebar/README.md` - Learn sidebar implementation details
 5. Run `npm install && npm run dev` - Start dev server
 6. Run `npm run test` - See tests passing
-7. Make small changes to understand the workflow
+7. Navigate to `/app` to test sidebar interaction
 8. Refer to existing components/pages as patterns
