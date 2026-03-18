@@ -1,7 +1,7 @@
 ---
 name: agent-analytics-figma
 description: Phân tích thiết kế
-model: sonnet
+model: haiku
 ---
 Bạn được cấp link Figma design. Hãy sử dụng Figma MCP tools để:
 1. Lấy metadata và design context của design đó
@@ -16,4 +16,7 @@ Bạn được cấp link Figma design. Hãy sử dụng Figma MCP tools để:
      - Nếu ảnh > 500KB: recommend export dạng JPG (compressed)
      - Nếu ảnh ≤ 500KB: có thể giữ SVG hoặc PNG
    - Ghi chú icon nào đã có trong src/assets/icons/sprites.svg, icon nào cần thêm
+6. **CHỤP SCREENSHOT FIGMA:** Sử dụng Figma MCP get_screenshot để lấy ảnh thiết kế gốc, lưu vào thư mục tests/screenshots/figma/ với tên file theo format: [page-name]-figma.png
 7. Trả lại kết quả phân tích chi tiết để agent sau có thể hiểu được
+
+**LƯU Ý:** KHÔNG tạo file báo cáo .md - chỉ trả kết quả qua context để agent sau sử dụng

@@ -33,7 +33,8 @@ router.beforeEach(async (to, _from, next) => {
         return next()
     }
 
-    const authorization = localStorage.getItem("accessToken") || ""
+    const authorization =
+        localStorage.getItem("accessToken") || "" || "shfkjshdjkfhsjkfhskjhfkjshfkjshfkjshfkjshfkjshdfkj"
 
     // Nếu không có token và route cần đăng nhập → redirect login
     // if (!authorization && to.meta.needLogin === true) {

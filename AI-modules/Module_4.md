@@ -1,7 +1,3 @@
-# AI Training Curriculum
-
-> **Lưu ý:** Các dòng chữ tô đỏ thì đội tech bắt buộc phải học, còn với các nhân sự khác có thể học hoặc bỏ qua.
-
 ---
 
 ## MODULE 4: AI AGENT & HỆ THỐNG TỰ ĐỘNG (AGENTIC AI)
@@ -314,6 +310,303 @@
 > _Dòng kiến thức vàng:_ LLM "biết" tool thông qua Tool Schema — bản mô tả JSON do nhà phát triển cung cấp. Cơ chế chọn
 > tool dựa trên: phân tích ý định → đánh giá khả năng tự xử lý → khớp description tool → trích xuất tham số. Model được
 > fine-tuning chuyên biệt để sinh JSON gọi hàm thay vì văn bản khi nhận ra cần dùng tool.
+
+-   **Skill Architecture (Kiến trúc cấu tạo Skill):** Một "Skill" đóng gói cho Claude được cấu trúc như thế nào (vai trò
+    của YAML frontmatter và file SKILL.md)? Cơ chế "Tiết lộ dần dần" (Progressive Disclosure) với hệ thống 3 tầng giúp AI
+    tối ưu hóa bộ nhớ (Token) mà vẫn giữ được lượng kiến thức chuyên sâu ra sao?
+
+> **Trả lời:**
+>
+> **1. Vấn đề Skills giải quyết — "Dạy 1 lần, nhớ mãi"**
+>
+> Theo Anthropic, mỗi lần mở cuộc chat mới với AI, bạn phải giải thích lại từ đầu: "Tôi dùng Vue 3 + TypeScript, convention là snake_case cho biến, code theo pattern này, review theo checklist kia..." Lặp đi lặp lại mỗi session.
+>
+> **Skills = Persistent Knowledge.** Bạn đóng gói kiến thức 1 lần vào file `.md`, AI tự load khi cần — không cần nhắc lại. Giống như onboarding 1 nhân viên mới: dạy 1 lần, từ đó họ tự biết cách làm.
+>
+> ```
+> ❌ KHÔNG CÓ SKILL                          ✅ CÓ SKILL
+> ┌─────────────────────┐                    ┌─────────────────────┐
+> │ Chat 1: "Tôi dùng   │                    │ Chat 1: "/review"   │
+> │ Vue 3, convention    │                    │ → AI tự load skill  │
+> │ là..., review theo   │                    │   biết convention,  │
+> │ checklist này..."    │                    │   checklist, output │
+> ├─────────────────────┤                    │   format            │
+> │ Chat 2: "Tôi dùng   │                    ├─────────────────────┤
+> │ Vue 3, convention    │ ← Lặp lại!       │ Chat 2: "/review"   │
+> │ là..., review theo   │                    │ → Giống hệt, 0     │
+> │ checklist này..."    │                    │   setup lại         │
+> └─────────────────────┘                    └─────────────────────┘
+> ```
+>
+> **2. Cấu trúc 1 Skill — 2 thành phần cốt lõi**
+>
+> Mỗi Skill là 1 file `.md` (thường đặt tên `SKILL.md`) gồm 2 phần rõ ràng:
+>
+> ```
+> ┌─────────────────────────────────────┐
+> │  YAML Frontmatter (metadata)       │  ← Phần "nhãn dán" bên ngoài
+> │  ---                                │
+> │  name: "code-reviewer"              │
+> │  description: "Review code quality" │
+> │  triggers:                          │
+> │    - "review my code"               │
+> │    - "check quality"                │
+> │  tools: [Read, Grep, Glob]          │
+> │  ---                                │
+> ├─────────────────────────────────────┤
+> │  SKILL.md Body (instructions)       │  ← Phần "bộ não" bên trong
+> │                                     │
+> │  # System Prompt                    │
+> │  Bạn là senior code reviewer...     │
+> │                                     │
+> │  # Workflow Steps                   │
+> │  1. Đọc file thay đổi              │
+> │  2. Kiểm tra patterns...            │
+> │                                     │
+> │  # Reference Files                  │
+> │  @coding-standards.md               │
+> │  @checklist.md                      │
+> └─────────────────────────────────────┘
+> ```
+>
+> | Thành phần | Vai trò | Khi nào được đọc |
+> | --- | --- | --- |
+> | **YAML Frontmatter** | Metadata: tên, mô tả, triggers (từ khóa kích hoạt), danh sách tools được phép dùng | Luôn được scan — AI đọc phần này để biết "skill nào tồn tại" |
+> | **SKILL.md Body** | Chỉ dẫn chi tiết: system prompt, workflow steps, ví dụ, reference files | Chỉ đọc khi skill được kích hoạt — tiết kiệm token |
+>
+> **3. Progressive Disclosure — Hệ thống 3 tầng tiết kiệm token**
+>
+> Vấn đề: Nếu load toàn bộ nội dung của TẤT CẢ skills vào context window → tràn token, tốn chi phí, giảm chất lượng (Lost in the Middle). Giải pháp: load theo tầng, chỉ load sâu khi cần.
+>
+> ```
+> Tầng 1 — Skill Catalog (luôn load, ~2-5 tokens/skill)
+> ┌──────────────────────────────────────────┐
+> │ • code-reviewer: "Review code quality"   │  ← Chỉ tên + 1 dòng mô tả
+> │ • test-runner: "Run and analyze tests"   │     Tổng 50 skills ≈ 200 tokens
+> │ • git-manager: "Commit & push changes"   │     Rất nhẹ, luôn có mặt
+> │ • ...                                    │
+> └──────────────────────────────────────────┘
+>          │
+>          ▼  User nói "review my code" → trigger match
+>
+> Tầng 2 — Frontmatter Detail (~50-100 tokens/skill)
+> ┌──────────────────────────────────────────┐
+> │ name: code-reviewer                      │  ← Load YAML đầy đủ
+> │ tools: [Read, Grep, Glob, Agent]         │     để xác nhận đúng skill
+> │ triggers: ["review", "check quality"]    │     + chuẩn bị tools
+> │ model: sonnet                            │
+> └──────────────────────────────────────────┘
+>          │
+>          ▼  Xác nhận đúng skill → kích hoạt
+>
+> Tầng 3 — Full Body (~500-5000 tokens/skill)
+> ┌──────────────────────────────────────────┐
+> │ # Bạn là senior code reviewer...         │  ← Load TOÀN BỘ chỉ dẫn
+> │ # Bước 1: Đọc git diff                  │     workflow, ví dụ, reference
+> │ # Bước 2: Kiểm tra OWASP top 10...      │     Chỉ 1 skill được load
+> │ # Ví dụ output: ...                      │     tại 1 thời điểm
+> │ @reference/coding-standards.md           │
+> └──────────────────────────────────────────┘
+> ```
+>
+> **Hiệu quả:** 50 skills × 3000 tokens trung bình = 150,000 tokens nếu load hết. Với Progressive Disclosure: Tầng 1 (200 tokens) + Tầng 3 của 1 skill (3000 tokens) = **~3,200 tokens** → tiết kiệm **~98% token**.
+>
+> **4. Ý nghĩa cho developer**
+>
+> - **Thiết kế skill:** YAML frontmatter phải viết description và triggers cực rõ → vì đây là thứ duy nhất AI luôn thấy để quyết định kích hoạt.
+> - **Body càng chi tiết càng tốt:** Vì chỉ load khi cần, bạn không cần lo tốn token — hãy viết workflow step-by-step, ví dụ cụ thể, edge cases.
+> - **Reference files:** Cho phép 1 skill "gọi" thêm file kiến thức bên ngoài → tách biệt logic (skill) và data (reference) giống như code tách biệt logic và config.
+
+-   **Skills & MCP Synergy (Sự cộng hưởng giữa Skill và MCP):** Sự kết hợp giữa MCP (Model Context Protocol) và Skills
+    hoạt động theo nguyên lý nào? Tại sao người ta lại ví von: "MCP cung cấp nhà bếp và dụng cụ, còn Skill cung cấp công
+    thức nấu ăn"?
+
+> **Trả lời:**
+>
+> **1. MCP vs Skill — Phân biệt rõ vai trò**
+>
+> | | MCP (Model Context Protocol) | Skill |
+> | --- | --- | --- |
+> | **Là gì** | Giao thức chuẩn kết nối AI với tools/data bên ngoài | Bộ chỉ dẫn workflow dạy AI *cách* sử dụng tools |
+> | **Cung cấp** | **Khả năng** (capabilities): đọc file, query DB, gọi API, chạy code | **Chiến lược** (strategy): khi nào dùng tool nào, theo thứ tự gì, xử lý lỗi ra sao |
+> | **Dạng** | Server chạy nền, expose tools qua JSON-RPC | File markdown chứa instructions |
+> | **Ví dụ** | `mcp-server-github` → cung cấp tools: `create_pr`, `list_issues`, `read_file` | Skill "git-manager" → biết workflow: check status → stage files → commit message conventions → push |
+>
+> **2. Ẩn dụ "Nhà bếp & Công thức" — Tại sao chính xác?**
+>
+> ```
+> MCP = Nhà bếp + Dụng cụ                    Skill = Công thức nấu ăn
+> ┌─────────────────────────┐                ┌─────────────────────────┐
+> │ 🔥 Bếp gas (compute)    │                │ 📖 Phở bò:              │
+> │ 🔪 Dao (file operations) │                │    1. Ninh xương 8 tiếng │
+> │ 🍳 Chảo (API calls)     │                │    2. Phi hành...        │
+> │ 🧊 Tủ lạnh (database)   │                │    3. Trụng bánh...      │
+> │ 📦 Nguyên liệu (data)   │                │    4. Bày tô, thêm rau  │
+> └─────────────────────────┘                └─────────────────────────┘
+>          │                                            │
+>          └──────────── KẾT HỢP ─────────────────────┘
+>                           │
+>                    🍜 Tô phở hoàn chỉnh
+> ```
+>
+> - **Chỉ có MCP, không có Skill:** AI có đầy đủ tools nhưng không biết phối hợp hiệu quả — giống như có nhà bếp đầy đủ nhưng không biết nấu gì, dùng lửa to hay nhỏ, ninh bao lâu. Kết quả: AI phải tự suy luận → tốn token, dễ sai, không nhất quán.
+> - **Chỉ có Skill, không có MCP:** AI biết quy trình hoàn hảo nhưng không có công cụ thực thi — giống như có công thức 5 sao nhưng không có bếp, không có dao. Kết quả: AI chỉ "tư vấn" chứ không "làm" được.
+> - **Có cả hai:** AI vừa có tools (MCP) vừa biết chiến lược sử dụng (Skill) → output chất lượng, nhất quán, ít lỗi.
+>
+> **3. Nguyên lý phối hợp — Luồng hoạt động**
+>
+> ```
+> User: "Review PR #42 và tạo comment"
+>         │
+>         ▼
+> ┌─ Skill "code-reviewer" được kích hoạt ─────────────────────┐
+> │                                                             │
+> │  Bước 1: Đọc PR diff                                       │
+> │          → Gọi MCP tool: github.get_pull_request(#42)      │
+> │                                                             │
+> │  Bước 2: Phân tích code theo checklist                     │
+> │          → Gọi MCP tool: file.read("src/...")              │
+> │          → Áp dụng coding standards từ reference file      │
+> │                                                             │
+> │  Bước 3: Tạo review comment                                │
+> │          → Gọi MCP tool: github.create_review(#42, ...)    │
+> │                                                             │
+> │  Skill quyết định THỨ TỰ, LOGIC, FORMAT                   │
+> │  MCP cung cấp KHẢ NĂNG THỰC THI mỗi bước                  │
+> └─────────────────────────────────────────────────────────────┘
+> ```
+>
+> **4. Tóm lại cho developer**
+>
+> - **MCP là infrastructure layer:** Plug-and-play, chuẩn hóa — 1 MCP server dùng được cho nhiều skills.
+> - **Skill là intelligence layer:** Domain-specific — mỗi skill encode expertise riêng.
+> - **Best practice:** Tách biệt rõ ràng. MCP server không nên chứa business logic. Skill không nên hard-code API calls. Ghép lại như Lego: thay MCP server (đổi nhà cung cấp DB) mà skill không cần sửa, và ngược lại.
+
+-   **Skill Customization & Persona (Thiết lập và Cá nhân hóa Kỹ năng):** Quy trình 3 bước để "nhân bản" giọng văn cá
+    nhân (vibe) vào một AI Agent diễn ra như thế nào? Tại sao việc tách bạch giữa việc dùng một "Base Skill" có sẵn (để lấy
+    tư duy cấu trúc) và việc tạo ra một "File tham chiếu" riêng (để thổi linh hồn, từ vựng, ngữ điệu) lại là chìa khóa để
+    AI thoát khỏi lối hành văn "máy móc, văn mẫu"?
+
+> **Trả lời:**
+>
+> **1. Quy trình 3 bước nhân bản giọng văn (Vibe Cloning)**
+>
+> Nguồn tham khảo thực tế: Phương pháp "Vibe Cloning" từ cộng đồng AI Việt Nam — biến AI từ "viết văn mẫu" thành "viết đúng giọng bạn".
+>
+> **Bước 1 — Tìm Base Skill có sẵn ("Đừng phát minh lại bánh xe")**
+>
+> Trước khi viết từ đầu, tìm skill gần nhất trong các nguồn sau:
+>
+> - **GitHub skill repos:** Tìm `claude-code skills` trên GitHub — hàng trăm skills cộng đồng chia sẻ miễn phí (content-writer, code-reviewer, copywriter, ...).
+> - **Anthropic's official skills:** Skill mặc định đi kèm Claude Code.
+> - **Marketplace/Community:** Các bộ sưu tập skills trên GitHub, Discord communities.
+>
+> Mục tiêu: Lấy **cấu trúc tư duy** (workflow, steps, checklist) — đây là phần khó viết nhất và đã được expert đúc kết.
+>
+> **Bước 2 — Thu thập & phân tích mẫu giọng văn (Vibe Sampling)**
+>
+> Đây là bước quan trọng nhất. Lấy 5-10 mẫu output thể hiện đúng phong cách bạn muốn = "DNA" giọng văn.
+>
+> **Lấy từ đâu:** bài viết cũ, email, comment code, tin nhắn Slack, caption, báo cáo — bất kỳ thứ gì thể hiện "cách bạn nói".
+>
+> **Phân tích gì — Checklist "giải phẫu" giọng văn:**
+>
+> | Yếu tố | Câu hỏi phân tích | Ví dụ thực tế |
+> | --- | --- | --- |
+> | **Từ vựng đặc trưng** | Có từ lóng, slang, catchphrase riêng không? | "Ultr" (ultra rút gọn), "thính" (hint hẹn hò), "nói trắng ra" |
+> | **Nhịp câu** | Câu ngắn hay dài? Nhịp nhanh hay chậm? | Câu ≤10 từ, xen kẽ câu hỏi tu từ |
+> | **Cấu trúc mở bài** | Đi thẳng vào vấn đề hay dẫn dắt? | Bottom-line-up-front vs storytelling |
+> | **Emoji/Humor** | Có dùng không? Mức độ? | ❌ Không emoji trong technical, ✅ có humor nhẹ |
+> | **Kỹ thuật tu từ** | Ẩn dụ, liệt kê, hỏi đáp, so sánh? | Hay ví von kỹ thuật với đời thường |
+> | **Câu kết** | Kết luận kiểu gì? | "Tóm lại:" + action items cụ thể |
+>
+> **Tip thực tế:** Dump toàn bộ bài viết cũ vào 1 file → nhờ AI phân tích patterns → AI tự rút ra các quy tắc giọng văn cho bạn.
+>
+> **Bước 3 — Tạo Reference File ("Linh hồn" / Persona Profile)**
+>
+> Đúc kết phân tích ở Bước 2 thành file tham chiếu — đây là "hồ sơ linh hồn" dạng AI đọc được:
+>
+> ```markdown
+> # Persona: [Tên bạn] Writing Style
+>
+> ## Nguyên tắc giọng văn
+> - Câu ngắn, đi thẳng vào vấn đề. Không "như chúng ta đã biết..."
+> - Dùng ẩn dụ đời thường để giải thích kỹ thuật
+> - Xưng "mình" với đồng nghiệp, "tôi" trong tài liệu formal
+> - Hay dùng: "nói trắng ra", "đơn giản là", "thực tế thì"
+> - KHÔNG dùng: emoji, "hãy cùng khám phá", "thật tuyệt vời"
+>
+> ## Cấu trúc đặc trưng
+> - Mở bài = 1 câu đúc kết kết luận (bottom-line-up-front)
+> - Thân bài = bullet points, mỗi ý ≤ 2 câu
+> - Kết = "Tóm lại:" + action items cụ thể
+>
+> ## Mẫu tham khảo
+> [Dán 3-5 mẫu viết thực tế của bạn ở đây]
+> ```
+>
+> **Tip:** File này chính là "linh hồn" — càng nhiều mẫu thực tế, AI bắt chước càng chính xác. Anthropic gọi đây là skill reference file — tách biệt khỏi logic workflow.
+>
+> **Bước 4 — Ghép Base Skill + Reference File bằng prompt đơn giản**
+>
+> Không cần prompt phức tạp. Chỉ cần 1 câu ghép:
+>
+> ```
+> ┌─ Base Skill: "content-writer" ──────────┐
+> │ Workflow:                                │
+> │  1. Phân tích đối tượng đọc             │  ← Tư duy CẤU TRÚC
+> │  2. Xác định mục tiêu bài viết          │     (lấy từ GitHub,
+> │  3. Outline → Draft → Polish            │      expert đã đúc kết)
+> │  4. Kiểm tra readability                │
+> │                                          │
+> │ Reference: @my-persona.md ──────────┐   │
+> │                                      │   │
+> │  "Câu ngắn, bottom-line-up-front,   │   │  ← Linh hồn CÁ NHÂN
+> │   hay dùng ẩn dụ đời thường,        │   │     (file "linh hồn"
+> │   catchphrase: 'nói trắng ra'..."   │   │      bạn tự tạo)
+> └──────────────────────────────────────┘   │
+>                                            │
+> Output: Bài viết có CẤU TRÚC tốt + GIỌNG VĂN đúng bạn
+> ```
+>
+> **Cách ghép trong thực tế (ví dụ prompt trong SKILL.md):**
+>
+> ```markdown
+> # content-writer skill
+> ... (workflow steps) ...
+>
+> ## Voice & Tone
+> Follow the writing style defined in @references/my-persona.md
+> Every output MUST match the vocabulary, sentence rhythm,
+> and structure patterns in that reference file.
+> ```
+>
+> **2. Tại sao phải TÁCH BẠCH Base Skill và Reference File?**
+>
+> | Nếu gộp chung (❌) | Nếu tách bạch (✅) |
+> | --- | --- |
+> | Skill chứa cả workflow + persona → quá dài, khó maintain | Base Skill = logic (reusable). Reference = vibe (swappable) |
+> | Đổi giọng văn = viết lại cả skill | Đổi giọng văn = đổi 1 reference file |
+> | 5 người dùng cùng skill = 5 bản copy khác nhau | 5 người dùng cùng 1 base skill + 5 reference files khác nhau |
+> | AI nhận chỉ dẫn mơ hồ "viết hay" → output văn mẫu | AI nhận mẫu CỤ THỂ từ reference → bắt chước pattern thật |
+>
+> **Chìa khóa thoát văn mẫu:**
+>
+> - **Chỉ nói "viết tự nhiên, đừng máy móc"** → AI vẫn viết máy móc, vì nó không biết "tự nhiên" của BẠN là gì. Đây là rule trừu tượng — AI không có gì để bắt chước.
+> - **Đưa 5 mẫu viết thật của bạn** vào reference file → AI có concrete examples để bắt chước — từ vựng, nhịp câu, cách mở bài, cách kết luận. Nó clone PATTERN thực tế.
+> - **Anthropic xác nhận:** Skills hoạt động tốt nhất khi instructions càng cụ thể, càng nhiều ví dụ thật. Mẫu thực tế > Rule trừu tượng. Giống concept "few-shot prompting" nhưng persistent (lưu 1 lần, dùng mãi).
+>
+> **3. Ví dụ thực tế — Cùng 1 Base Skill, 2 Reference khác nhau**
+>
+> *Input:* "Viết đoạn giới thiệu về tính năng Dark Mode"
+>
+> *Reference A (Developer blog):*
+> > Dark Mode giảm 40% năng lượng trên OLED. Thêm `prefers-color-scheme` media query, dùng CSS custom properties cho color tokens. 3 bước: detect → apply → persist vào localStorage.
+>
+> *Reference B (Marketing copy):*
+> > Mắt bạn xứng đáng được nghỉ ngơi. Dark Mode không chỉ đẹp — nó giảm mỏi mắt sau 8 tiếng nhìn màn hình, tiết kiệm pin điện thoại, và biến app thành trải nghiệm premium mà user sẽ ghiền.
+>
+> Cùng base skill "content-writer" → cùng cấu trúc tốt → nhưng giọng hoàn toàn khác nhờ reference file.
 
 ### 3. Cơ chế hoạt động
 

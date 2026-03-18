@@ -8,6 +8,7 @@ const routes = [
     {
         path: "/app",
         component: () => import("@/layout/index.vue"),
+        redirect: "/app/chat",
         children: []
     },
 

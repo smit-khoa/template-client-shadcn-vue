@@ -1,5 +1,5 @@
 ---
-description: go
+description: go-2
 ---
 ```mermaid
 flowchart TD
@@ -15,7 +15,8 @@ flowchart TD
     ifelse_test_result{If/Else:<br/>Conditional Branch}
     agent_update_docs[Sub-Agent: update-docs]
     agent_fix_ui[Sub-Agent: fix-ui]
-    end_node_fail([End])
+    question_1773479912725{AskUserQuestion:<br/>Chọn phương thức test giao diện}
+    question_manual_feedback{AskUserQuestion:<br/>Kết quả test thủ công - Vui lòng kiểm tra giao diện và đưa ra đánh giá}
 
     start_node_default --> prompt_figma_link
     prompt_figma_link --> agent_1770621158350
@@ -24,12 +25,16 @@ flowchart TD
     agent_1770621482261 --> agent_1770621677356
     agent_1770621677356 --> agent_download_assets
     agent_download_assets --> agent_1770622516467
-    agent_1770622516467 --> agent_visual_test
     agent_visual_test --> ifelse_test_result
     ifelse_test_result -->|Test Passed| agent_update_docs
     ifelse_test_result -->|Test Failed| agent_fix_ui
     agent_fix_ui --> agent_visual_test
     agent_update_docs --> end_node_default
+    agent_1770622516467 --> question_1773479912725
+    question_1773479912725 -->|Để em test cho và anh chỉ việc ngồi chơi nhé| agent_visual_test
+    question_1773479912725 -->|Anh tự test đi nhé xem thỏa mãn anh chưa| question_manual_feedback
+    question_manual_feedback -->|Pass - Đạt yêu cầu| end_node_default
+    question_manual_feedback -->|Cần sửa - Chưa đạt| agent_1770622516467
 ```
 
 ## Workflow Execution Guide
@@ -230,7 +235,7 @@ Thực hiện visual regression test để so sánh giao diện code với thi�
 **QUY TRÌNH TEST:**
 
 1. **Chạy Playwright screenshot:**
-   - Navigate đến trang vừa implement trên dev server
+   - Navigate đến trang vừa implement trên dev server (https://dev.smit.team:8309)
    - Chụp screenshot full page và lưu vào tests/screenshots/actual/[page-name]-actual.png
    - Chụp ở các viewport: desktop (1920x1080), tablet (768x1024), mobile (375x667)
 
@@ -363,6 +368,26 @@ Dựa vào kết quả visual test đã fail, thực hiện sửa lỗi UI:
 ```
 Vui lòng cung cấp link Figma design mà bạn muốn triển khai thành code và cung cấp yêu cầu chi tiết nếu muốn mô tả thêm công việc cụ thể.
 ```
+
+### AskUserQuestion Node Details
+
+Ask the user and proceed based on their choice.
+
+#### question_1773479912725(Chọn phương thức test giao diện)
+
+**Selection mode:** Single Select (branches based on the selected option)
+
+**Options:**
+- **Để em test cho và anh chỉ việc ngồi chơi nhé**: AI sẽ sử dụng Playwright để chụp screenshot và so sánh visual với thiết kế Figma
+- **Anh tự test đi nhé xem thỏa mãn anh chưa**: Bạn sẽ tự kiểm tra giao diện trên trình duyệt và đưa ra nhận xét
+
+#### question_manual_feedback(Kết quả test thủ công - Vui lòng kiểm tra giao diện và đưa ra đánh giá)
+
+**Selection mode:** Single Select (branches based on the selected option)
+
+**Options:**
+- **Pass - Đạt yêu cầu**: Giao diện đã đúng với thiết kế, hoàn thành tính năng
+- **Cần sửa - Chưa đạt**: Giao diện chưa đúng, cần góp ý để AI sửa lại
 
 ### If/Else Node Details
 

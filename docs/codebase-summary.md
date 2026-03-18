@@ -598,6 +598,17 @@ npm run preview
 - **Indicator calculation:** DOM-based getBoundingClientRect with fallback
 - **Full documentation:** See `docs/sidebar/README.md`
 
+### AppHeader (2026-03-17)
+- **Height:** 60px (min-h-[60px])
+- **Layout:** Flex, justify-between (title left, tools right)
+- **Title:** Dynamic gradient text based on route (Tin nhắn, Danh bạ, Kết nối, Lịch sử, Nhân viên, Cài đặt)
+- **Tools:** Help button (help-circle icon) + Theme toggle (sun/moon icons) + Avatar image
+- **Components:** AppHeader.vue (main), imports Icon & ThemeToggle
+- **Icons:** help-circle, sun-03 (ThemeToggle), moon-02 (ThemeToggle)
+- **Avatar:** Mock from ui-avatars.com, needs auth store integration
+- **Route mapping:** Dynamic computed via route.path lookup
+- **Full documentation:** See `docs/header/README.md`
+
 ## Completed Features Details
 
 ### Features Overview
@@ -617,6 +628,14 @@ npm run preview
 - DOM-based indicator position calculation
 - See full docs: `docs/sidebar/README.md`
 
+#### 3. AppHeader (2026-03-17)
+- 60px header with dynamic page title based on route
+- Gradient cyan-to-green text for title
+- Help button, theme toggle, and user avatar
+- Responsive flex layout
+- Route-based title mapping (6 routes supported)
+- See full docs: `docs/header/README.md`
+
 ---
 
 ## Next Steps for New Developers
@@ -624,8 +643,9 @@ npm run preview
 1. Read `docs/project-overview-pdr.md` - Understand project goals
 2. Read `docs/code-standards.md` - Learn coding conventions
 3. Read `docs/system-architecture.md` - Understand data flow
-4. Read `docs/sidebar/README.md` - Learn sidebar implementation details
-5. Run `npm install && npm run dev` - Start dev server
-6. Run `npm run test` - See tests passing
-7. Navigate to `/app` to test sidebar interaction
-8. Refer to existing components/pages as patterns
+4. Read `docs/sidebar/README.md` - Learn sidebar navigation implementation
+5. Read `docs/header/README.md` - Learn header component implementation
+6. Run `npm install && npm run dev` - Start dev server
+7. Run `npm run test` - See tests passing
+8. Navigate to `/app` to test sidebar + header interaction
+9. Refer to existing components/pages as patterns
