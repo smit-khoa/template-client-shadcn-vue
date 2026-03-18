@@ -1,11 +1,12 @@
 # Codebase Summary
 
-**Project:** template-client-shadcn-vue (smit-chat)
-**Last Updated:** 2026-03-17
+**Project:** template-client-shadcn-vue (smit-chat) **Last Updated:** 2026-03-17
 
 ## Project Overview
 
-Template-client-shadcn-vue là một Vue 3 frontend template được tối ưu hóa cho development speed và code quality. Project sử dụng TypeScript strict mode, TailwindCSS cho styling, Shadcn-Vue (reka-ui) cho UI components, và Pinia cho state management.
+Template-client-shadcn-vue là một Vue 3 frontend template được tối ưu hóa cho development speed và code quality. Project
+sử dụng TypeScript strict mode, TailwindCSS cho styling, Shadcn-Vue (reka-ui) cho UI components, và Pinia cho state
+management.
 
 ## Directory Structure Overview
 
@@ -180,131 +181,139 @@ template-client-shadcn-vue/
 
 ### Entry Point & Initialization
 
-| File | Purpose |
-|------|---------|
-| `index.html` | HTML entry point, mounts Vue app to `#app` |
-| `main.ts` | Creates Vue app, sets up router, auth guard, fetches user data |
-| `App.vue` | Root component, Toaster notification config |
+| File         | Purpose                                                        |
+| ------------ | -------------------------------------------------------------- |
+| `index.html` | HTML entry point, mounts Vue app to `#app`                     |
+| `main.ts`    | Creates Vue app, sets up router, auth guard, fetches user data |
+| `App.vue`    | Root component, Toaster notification config                    |
 
 ### Routing
 
-| File | Purpose |
-|------|---------|
-| `router/index.ts` | Route definitions, router instance config |
+| File                     | Purpose                                                     |
+| ------------------------ | ----------------------------------------------------------- |
+| `router/index.ts`        | Route definitions, router instance config                   |
 | Route guard in `main.ts` | Checks auth token, validates user, redirects on auth errors |
 
 ### State Management
 
-| File | Purpose |
-|------|---------|
-| `store/index.ts` | Pinia setup, creates pinia instance |
-| `store/user.ts` | User store - holds userName, email, company data |
+| File             | Purpose                                          |
+| ---------------- | ------------------------------------------------ |
+| `store/index.ts` | Pinia setup, creates pinia instance              |
+| `store/user.ts`  | User store - holds userName, email, company data |
 
 ### Layout & Pages
 
-| File | Purpose |
-|------|---------|
+| File               | Purpose                                        |
+| ------------------ | ---------------------------------------------- |
 | `layout/index.vue` | Main app layout (header, sidebar, router-view) |
-| `layout/sidebar/` | Sidebar navigation components |
-| `pages/Home.vue` | Public landing page with login form |
-| `pages/app/*` | Protected app pages (Staff, Settings, etc) |
-| `pages/auth/*` | Auth pages (Login, Register) |
+| `layout/sidebar/`  | Sidebar navigation components                  |
+| `pages/Home.vue`   | Public landing page with login form            |
+| `pages/app/*`      | Protected app pages (Staff, Settings, etc)     |
+| `pages/auth/*`     | Auth pages (Login, Register)                   |
 
 ### Components
 
-| Directory | Purpose | Count |
-|-----------|---------|-------|
-| `components/ui/` | Shadcn-Vue unstyled base components | 40+ |
-| `components/custom/` | Project-specific wrapped components | 20+ |
-| `components/auth/` | Auth-related components | - |
-| `components/employees/` | Employee management components | - |
-| `components/shared/` | Shared app-wide components | - |
-| `components/login/` | Login page specific components | - |
+| Directory               | Purpose                             | Count |
+| ----------------------- | ----------------------------------- | ----- |
+| `components/ui/`        | Shadcn-Vue unstyled base components | 40+   |
+| `components/custom/`    | Project-specific wrapped components | 20+   |
+| `components/auth/`      | Auth-related components             | -     |
+| `components/employees/` | Employee management components      | -     |
+| `components/shared/`    | Shared app-wide components          | -     |
+| `components/login/`     | Login page specific components      | -     |
 
 ### Composables & Utilities
 
-| File | Purpose |
-|------|---------|
-| `composables/useTheme.ts` | Dark/light theme switching, state + methods |
-| `composables/useSprite.ts` | SVG sprite loading for icons |
-| `lib/utils.ts` | `cn()` helper for TailwindCSS class merging |
-| `common/index.ts` | Utility functions: formatCurrency, formatDate, etc |
+| File                       | Purpose                                            |
+| -------------------------- | -------------------------------------------------- |
+| `composables/useTheme.ts`  | Dark/light theme switching, state + methods        |
+| `composables/useSprite.ts` | SVG sprite loading for icons                       |
+| `lib/utils.ts`             | `cn()` helper for TailwindCSS class merging        |
+| `common/index.ts`          | Utility functions: formatCurrency, formatDate, etc |
 
 ### API & Controllers
 
-| File | Purpose |
-|------|---------|
+| File                    | Purpose                                      |
+| ----------------------- | -------------------------------------------- |
 | `controllers/global.js` | Axios wrapper - handles auth, errors, toasts |
 
 ### Styling
 
-| File | Purpose |
-|------|---------|
-| `style.css` | Global styles, TailwindCSS import, CSS variables |
-| Component `.css` | Scoped component styles |
+| File             | Purpose                                          |
+| ---------------- | ------------------------------------------------ |
+| `style.css`      | Global styles, TailwindCSS import, CSS variables |
+| Component `.css` | Scoped component styles                          |
 
 ### Configuration Files
 
-| File | Purpose |
-|------|---------|
-| `vite.config.ts` | Vite build config, plugin setup |
-| `vitest.config.ts` | Vitest unit test config |
-| `tsconfig.json` | TypeScript root config |
-| `tsconfig.app.json` | App TypeScript config (strict mode) |
-| `tsconfig.node.json` | Build tools TS config |
-| `eslint.config.ts` | ESLint linting rules |
-| `.prettierrc.json` | Prettier formatting rules |
-| `package.json` | Dependencies, scripts, metadata |
-| `components.json` | Shadcn component configuration |
+| File                 | Purpose                             |
+| -------------------- | ----------------------------------- |
+| `vite.config.ts`     | Vite build config, plugin setup     |
+| `vitest.config.ts`   | Vitest unit test config             |
+| `tsconfig.json`      | TypeScript root config              |
+| `tsconfig.app.json`  | App TypeScript config (strict mode) |
+| `tsconfig.node.json` | Build tools TS config               |
+| `eslint.config.ts`   | ESLint linting rules                |
+| `.prettierrc.json`   | Prettier formatting rules           |
+| `package.json`       | Dependencies, scripts, metadata     |
+| `components.json`    | Shadcn component configuration      |
 
 ## Technology Stack Details
 
 ### Framework & Language
-- **Vue 3.5.24**: Reactive UI framework
-- **TypeScript 5.9.3**: Type-safe JavaScript
-- **Vite 7.2.4**: Lightning-fast build tool
+
+-   **Vue 3.5.24**: Reactive UI framework
+-   **TypeScript 5.9.3**: Type-safe JavaScript
+-   **Vite 7.2.4**: Lightning-fast build tool
 
 ### UI & Styling
-- **TailwindCSS 4.1.18**: Utility-first CSS framework
-- **Shadcn-Vue (reka-ui 2.6.1)**: Unstyled, accessible components
-- **Lucide Icons 0.560.0**: Icon library
-- **class-variance-authority 0.7.1**: Component variant management
-- **tailwind-merge 3.4.0**: Intelligent class merging
+
+-   **TailwindCSS 4.1.18**: Utility-first CSS framework
+-   **Shadcn-Vue (reka-ui 2.6.1)**: Unstyled, accessible components
+-   **Lucide Icons 0.560.0**: Icon library
+-   **class-variance-authority 0.7.1**: Component variant management
+-   **tailwind-merge 3.4.0**: Intelligent class merging
 
 ### State & Routing
-- **Pinia 3.0.3**: Lightweight state management
-- **Vue Router 4.6.4**: Official Vue routing library
+
+-   **Pinia 3.0.3**: Lightweight state management
+-   **Vue Router 4.6.4**: Official Vue routing library
 
 ### HTTP & API
-- **Axios 1.13.2**: Promise-based HTTP client
+
+-   **Axios 1.13.2**: Promise-based HTTP client
 
 ### Utilities
-- **currency-formatter 1.5.9**: Currency formatting
-- **moment 2.30.1**: Date/time manipulation
-- **randomstring 1.3.0**: Random string generation
-- **vue-sonner 2.0.2**: Toast notifications
-- **vue-svg-sprite 2.2.1**: SVG sprite management
-- **vuedraggable 4.1.0**: Drag & drop support
-- **vaul-vue 0.4.1**: Drawer component library
-- **clsx 2.1.1**: Conditional class names
+
+-   **currency-formatter 1.5.9**: Currency formatting
+-   **moment 2.30.1**: Date/time manipulation
+-   **randomstring 1.3.0**: Random string generation
+-   **vue-sonner 2.0.2**: Toast notifications
+-   **vue-svg-sprite 2.2.1**: SVG sprite management
+-   **vuedraggable 4.1.0**: Drag & drop support
+-   **vaul-vue 0.4.1**: Drawer component library
+-   **clsx 2.1.1**: Conditional class names
 
 ### Development Tools
-- **vue-tsc 3.1.4**: Vue TypeScript compiler
-- **@vitejs/plugin-vue 6.0.1**: Vite Vue plugin
-- **@vitejs/plugin-basic-ssl 2.1.0**: HTTPS support
+
+-   **vue-tsc 3.1.4**: Vue TypeScript compiler
+-   **@vitejs/plugin-vue 6.0.1**: Vite Vue plugin
+-   **@vitejs/plugin-basic-ssl 2.1.0**: HTTPS support
 
 ### Testing
-- **Vitest 4.0.16**: Fast unit test framework
-- **@vue/test-utils 2.4.6**: Vue component testing utilities
-- **@testing-library/vue 8.1.0**: Accessible testing
-- **happy-dom 20.0.11**: Lightweight DOM implementation
-- **@playwright/test 1.58.0**: E2E testing framework
-- **pixelmatch 7.1.0**: Visual regression testing
-- **pngjs 7.0.0**: PNG image processing
+
+-   **Vitest 4.0.16**: Fast unit test framework
+-   **@vue/test-utils 2.4.6**: Vue component testing utilities
+-   **@testing-library/vue 8.1.0**: Accessible testing
+-   **happy-dom 20.0.11**: Lightweight DOM implementation
+-   **@playwright/test 1.58.0**: E2E testing framework
+-   **pixelmatch 7.1.0**: Visual regression testing
+-   **pngjs 7.0.0**: PNG image processing
 
 ### Code Quality
-- **ESLint**: JavaScript linting
-- **Prettier**: Code formatting
+
+-   **ESLint**: JavaScript linting
+-   **Prettier**: Code formatting
 
 ## Core Modules Explanation
 
@@ -313,6 +322,7 @@ template-client-shadcn-vue/
 **Files:** `main.ts`, `store/user.ts`, `pages/auth/`
 
 **Flow:**
+
 1. User visits app
 2. `main.ts` router guard intercepts route
 3. Guard checks `localStorage.accessToken`
@@ -322,15 +332,17 @@ template-client-shadcn-vue/
 7. Page access allowed if authenticated
 
 **Key Functions:**
-- `router.beforeEach()` - Auth guard
-- `user.setUser()` - Store user data
-- `api()` - HTTP call with auth header
+
+-   `router.beforeEach()` - Auth guard
+-   `user.setUser()` - Store user data
+-   `api()` - HTTP call with auth header
 
 ### Theme Module
 
 **Files:** `composables/useTheme.ts`, `style.css`
 
 **Flow:**
+
 1. Component imports `useTheme()`
 2. Calls `toggleTheme()` or `setTheme(theme)`
 3. Updates CSS variables dynamically
@@ -338,25 +350,28 @@ template-client-shadcn-vue/
 5. All components using theme vars update
 
 **Key Functions:**
-- `useTheme()` - Composable for theme management
-- `toggleTheme()` - Switch theme
-- `setTheme(theme)` - Set specific theme
+
+-   `useTheme()` - Composable for theme management
+-   `toggleTheme()` - Switch theme
+-   `setTheme(theme)` - Set specific theme
 
 ### Component Module
 
 **Files:** `components/ui/*`, `components/custom/*`
 
 **Structure:**
-- Each component in separate folder
-- `Component.vue` - Main component file
-- `index.ts` - Export for easy importing
-- Components are fully typed with TypeScript
-- Props and emits use interfaces
+
+-   Each component in separate folder
+-   `Component.vue` - Main component file
+-   `index.ts` - Export for easy importing
+-   Components are fully typed with TypeScript
+-   Props and emits use interfaces
 
 **Usage Pattern:**
+
 ```typescript
-import { Button } from '@/components/ui/button'
-import CustomButton from '@/components/custom/Button.vue'
+import { Button } from "@/components/ui/button"
+import CustomButton from "@/components/custom/Button.vue"
 ```
 
 ### State Management Module
@@ -364,28 +379,31 @@ import CustomButton from '@/components/custom/Button.vue'
 **Files:** `store/user.ts`, `store/index.ts`
 
 **Pattern:**
-- Pinia stores for reactive state
-- Actions for mutations
-- Getters for computed state
-- Accessed via `store.getUser` or `store.hasCompany`
+
+-   Pinia stores for reactive state
+-   Actions for mutations
+-   Getters for computed state
+-   Accessed via `store.getUser` or `store.hasCompany`
 
 ### API Module
 
 **Files:** `controllers/global.js`
 
 **Features:**
-- Centralized Axios instance
-- Automatic error handling
-- Authorization header injection
-- Toast notifications on error
-- Typed response handling
+
+-   Centralized Axios instance
+-   Automatic error handling
+-   Authorization header injection
+-   Toast notifications on error
+-   Typed response handling
 
 **Usage:**
+
 ```typescript
 const response = await api<UserResponse>({
-  url: '/api/v1/user',
-  method: 'GET',
-  authorization: token
+    url: "/api/v1/user",
+    method: "GET",
+    authorization: token
 })
 ```
 
@@ -410,12 +428,12 @@ __tests__/
     └── user.spec.ts
 ```
 
-**Testing Framework:** Vitest with happy-dom
-**Commands:**
-- `npm run test` - Watch mode
-- `npm run test:run` - Single run
-- `npm run test:coverage` - Coverage report
-- `npm run test:ui` - Visual test UI
+**Testing Framework:** Vitest with happy-dom **Commands:**
+
+-   `npm run test` - Watch mode
+-   `npm run test:run` - Single run
+-   `npm run test:coverage` - Coverage report
+-   `npm run test:ui` - Visual test UI
 
 ### E2E Tests (`e2e/tests/`)
 
@@ -427,13 +445,12 @@ e2e/tests/
 └── [feature tests]
 ```
 
-**Testing Framework:** Playwright
-**Device Profiles:** Desktop, Laptop HD, Mobile, Tablet
-**Commands:**
-- `npm run test:e2e` - Run E2E tests
-- `npm run test:e2e:ui` - Visual mode
-- `npm run test:e2e:headed` - Headed browser
-- `npm run test:e2e:debug` - Debug mode
+**Testing Framework:** Playwright **Device Profiles:** Desktop, Laptop HD, Mobile, Tablet **Commands:**
+
+-   `npm run test:e2e` - Run E2E tests
+-   `npm run test:e2e:ui` - Visual mode
+-   `npm run test:e2e:headed` - Headed browser
+-   `npm run test:e2e:debug` - Debug mode
 
 ## Development Workflow
 
@@ -476,63 +493,74 @@ npm run preview
 ## Important Patterns & Conventions
 
 ### Naming
-- Variables: `snake_case` (e.g., `user_name`, `is_loading`)
-- Functions: `camelCase` (e.g., `getUserById()`, `handleClick()`)
-- Components: `PascalCase` (e.g., `Button.vue`, `UserProfile.vue`)
-- Constants: `SCREAMING_SNAKE_CASE` (e.g., `MAX_RETRIES`)
+
+-   Variables: `snake_case` (e.g., `user_name`, `is_loading`)
+-   Functions: `camelCase` (e.g., `getUserById()`, `handleClick()`)
+-   Components: `PascalCase` (e.g., `Button.vue`, `UserProfile.vue`)
+-   Constants: `SCREAMING_SNAKE_CASE` (e.g., `MAX_RETRIES`)
 
 ### Component Props
-- All props typed with interfaces
-- Use `withDefaults()` for default values
-- Props follow `snake_case`
+
+-   All props typed with interfaces
+-   Use `withDefaults()` for default values
+-   Props follow `snake_case`
 
 ### Emits
-- Typed with interface
-- Prefixed with `on` (e.g., `onClick`, `onSubmit`)
-- Declared with `defineEmits<Emits>()`
+
+-   Typed with interface
+-   Prefixed with `on` (e.g., `onClick`, `onSubmit`)
+-   Declared with `defineEmits<Emits>()`
 
 ### Composables
-- Named with `use` prefix (e.g., `useTheme`)
-- Return object with functions and refs
-- Should be reusable across components
+
+-   Named with `use` prefix (e.g., `useTheme`)
+-   Return object with functions and refs
+-   Should be reusable across components
 
 ### Store Actions
-- Named descriptively (e.g., `setUser`, `clearUser`)
-- Single responsibility per action
-- Typed with interfaces
+
+-   Named descriptively (e.g., `setUser`, `clearUser`)
+-   Single responsibility per action
+-   Typed with interfaces
 
 ## Performance Considerations
 
 ### Bundle Size
-- Target: < 500KB gzipped
-- Achieved through: tree-shaking, code-splitting, minification
+
+-   Target: < 500KB gzipped
+-   Achieved through: tree-shaking, code-splitting, minification
 
 ### Code Splitting
-- Dynamic imports for routes
-- Lazy-load heavy components
-- Separate bundles per route
+
+-   Dynamic imports for routes
+-   Lazy-load heavy components
+-   Separate bundles per route
 
 ### Optimization
-- SVG sprite reduces requests
-- CSS classes merged efficiently
-- Theme switching without re-renders
-- Computed properties cached
+
+-   SVG sprite reduces requests
+-   CSS classes merged efficiently
+-   Theme switching without re-renders
+-   Computed properties cached
 
 ## Security Practices
 
 ### Data Handling
-- Tokens in localStorage (consider sessionStorage)
-- User data in memory (Pinia store)
-- API responses processed server-side
+
+-   Tokens in localStorage (consider sessionStorage)
+-   User data in memory (Pinia store)
+-   API responses processed server-side
 
 ### XSS Prevention
-- Vue 3 auto-escapes HTML
-- Avoid `v-html` unless necessary
-- Sanitize external HTML
+
+-   Vue 3 auto-escapes HTML
+-   Avoid `v-html` unless necessary
+-   Sanitize external HTML
 
 ### CSRF Protection
-- Backend handles CSRF tokens
-- SameSite cookies configured
+
+-   Backend handles CSRF tokens
+-   SameSite cookies configured
 
 ## Common Tasks
 
@@ -566,75 +594,81 @@ npm run preview
 
 ## Useful Resources
 
-- Source Code: `/src`
-- Tests: `/__tests__` and `/e2e`
-- Docs: `/docs`
-- Configs: Root level (.ts, .json files)
-- Assets: `/public` and `/src/assets`
+-   Source Code: `/src`
+-   Tests: `/__tests__` and `/e2e`
+-   Docs: `/docs`
+-   Configs: Root level (.ts, .json files)
+-   Assets: `/public` and `/src/assets`
 
 ## Completed Features
 
 ### Registration UI (2026-02-10)
-- 2-column layout (form + illustration)
-- Glass effect background
-- Form validation (email, password, confirm password)
-- Responsive design
+
+-   2-column layout (form + illustration)
+-   Glass effect background
+-   Form validation (email, password, confirm password)
+-   Responsive design
 
 ### Sidebar Navigation (2026-03-17)
-- **Collapsed state:** 56px width (icon only, text opacity 0%)
-- **Expanded state:** 200px width (icon + label, text opacity 100%)
-- **Hover-to-expand:** 300ms delay, auto-collapse on mouse leave
-- **Sliding indicator:** Smooth translateY animation (300ms), gradient background
-- **6 menu items with routes:**
-  - Kết nối nền tảng → `/app/connect`
-  - Chat → `/app/chat` (default)
-  - Danh bạ → `/app/contacts`
-  - Lịch sử → `/app/history`
-  - Nhân viên → `/app/staff`
-  - Cài đặt → `/app/settings`
-- **User section:** Avatar (7x7) + name/role at bottom
-- **Components:** Sidebar.vue (main), SidebarItem.vue (not used - inlined)
-- **Icons:** logo, layers-01, chatting-01, contact-01, clock-01, user-multiple, setting-01
-- **Indicator calculation:** DOM-based getBoundingClientRect with fallback
-- **Full documentation:** See `docs/sidebar/README.md`
+
+-   **Collapsed state:** 56px width (icon only, text opacity 0%)
+-   **Expanded state:** 200px width (icon + label, text opacity 100%)
+-   **Hover-to-expand:** 300ms delay, auto-collapse on mouse leave
+-   **Sliding indicator:** Smooth translateY animation (300ms), gradient background
+-   **6 menu items with routes:**
+    -   Kết nối nền tảng → `/app/connect`
+    -   Chat → `/app/chat` (default)
+    -   Danh bạ → `/app/contacts`
+    -   Lịch sử → `/app/history`
+    -   Nhân viên → `/app/staff`
+    -   Cài đặt → `/app/settings`
+-   **User section:** Avatar (7x7) + name/role at bottom
+-   **Components:** Sidebar.vue (main), SidebarItem.vue (not used - inlined)
+-   **Icons:** logo, layers-01, chatting-01, contact-01, clock-01, user-multiple, setting-01
+-   **Indicator calculation:** DOM-based getBoundingClientRect with fallback
+-   **Full documentation:** See `docs/sidebar/README.md`
 
 ### AppHeader (2026-03-17)
-- **Height:** 60px (min-h-[60px])
-- **Layout:** Flex, justify-between (title left, tools right)
-- **Title:** Dynamic gradient text based on route (Tin nhắn, Danh bạ, Kết nối, Lịch sử, Nhân viên, Cài đặt)
-- **Tools:** Help button (help-circle icon) + Theme toggle (sun/moon icons) + Avatar image
-- **Components:** AppHeader.vue (main), imports Icon & ThemeToggle
-- **Icons:** help-circle, sun-03 (ThemeToggle), moon-02 (ThemeToggle)
-- **Avatar:** Mock from ui-avatars.com, needs auth store integration
-- **Route mapping:** Dynamic computed via route.path lookup
-- **Full documentation:** See `docs/header/README.md`
+
+-   **Height:** 60px (min-h-[60px])
+-   **Layout:** Flex, justify-between (title left, tools right)
+-   **Title:** Dynamic gradient text based on route (Tin nhắn, Danh bạ, Kết nối, Lịch sử, Nhân viên, Cài đặt)
+-   **Tools:** Help button (help-circle icon) + Theme toggle (sun/moon icons) + Avatar image
+-   **Components:** AppHeader.vue (main), imports Icon & ThemeToggle
+-   **Icons:** help-circle, sun-03 (ThemeToggle), moon-02 (ThemeToggle)
+-   **Avatar:** Mock from ui-avatars.com, needs auth store integration
+-   **Route mapping:** Dynamic computed via route.path lookup
+-   **Full documentation:** See `docs/header/README.md`
 
 ## Completed Features Details
 
 ### Features Overview
 
 #### 1. Registration UI (2026-02-10)
-- 2-column layout with form and illustration
-- Glass effect background
-- Zod form validation (email, password, confirm password)
-- Responsive design
+
+-   2-column layout with form and illustration
+-   Glass effect background
+-   Zod form validation (email, password, confirm password)
+-   Responsive design
 
 #### 2. Sidebar Navigation (2026-03-17)
-- Collapsible sidebar with hover expand (56px → 200px)
-- 6 main menu items with routing
-- Sliding active indicator with gradient
-- User section with avatar and details
-- SVG sprite icons
-- DOM-based indicator position calculation
-- See full docs: `docs/sidebar/README.md`
+
+-   Collapsible sidebar with hover expand (56px → 200px)
+-   6 main menu items with routing
+-   Sliding active indicator with gradient
+-   User section with avatar and details
+-   SVG sprite icons
+-   DOM-based indicator position calculation
+-   See full docs: `docs/sidebar/README.md`
 
 #### 3. AppHeader (2026-03-17)
-- 60px header with dynamic page title based on route
-- Gradient cyan-to-green text for title
-- Help button, theme toggle, and user avatar
-- Responsive flex layout
-- Route-based title mapping (6 routes supported)
-- See full docs: `docs/header/README.md`
+
+-   60px header with dynamic page title based on route
+-   Gradient cyan-to-green text for title
+-   Help button, theme toggle, and user avatar
+-   Responsive flex layout
+-   Route-based title mapping (6 routes supported)
+-   See full docs: `docs/header/README.md`
 
 ---
 
