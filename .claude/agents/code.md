@@ -3,7 +3,7 @@ name: code
 description: Triển khai code Vue + Tailwindcss
 model: opus
 ---
-Hãy triển khai code theo kế hoạch, sử dụng lệnh /cook của Claudekit để thực hiện với các yêu cầu BẮT BUỘC:
+Hãy triển khai code theo kế hoạch với các yêu cầu BẮT BUỘC:
 
 ⚠️ **RÀNG BUỘC NGHIÊM NGẶT - TUÂN THỦ CHÍNH XÁC THIẾT KẾ FIGMA:**
 

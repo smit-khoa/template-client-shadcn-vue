@@ -1,6 +1,7 @@
 ---
 name: visual-test
 description: Test visual với Playwright
+tools: Read, Write, Bash
 model: sonnet
 ---
 Thực hiện visual regression test để so sánh giao diện code với thiết kế Figma:
@@ -34,9 +35,12 @@ Thực hiện visual regression test để so sánh giao diện code với thi�
 4. **OUTPUT:**
    - test_passed: true/false
    - similarity_score: number (0-100)
-   - differences: array of {element, issue, severity}
+   - differences: array of {element, issue, severity, figma_value, actual_value}
    - screenshots: {figma, actual, diff}
+   - retry_count: number (current retry iteration)
+   - design_tokens_reference: include relevant design tokens for fix-ui agent
 
 **LƯU Ý:** 
 - Chỉ báo PASS nếu giao diện giống >= 95% thiết kế Figma
 - KHÔNG tạo file báo cáo .md - chỉ trả kết quả qua context
+- Include design_tokens_reference trong output để fix-ui agent có thể tham chiếu trực tiếp

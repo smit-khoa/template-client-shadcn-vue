@@ -1,7 +1,8 @@
 ---
 name: download-assets
 description: Download assets từ Figma
-model: haiku
+tools: Read, Write, Bash
+model: sonnet
 ---
 Dựa vào kế hoạch từ Plan agent, thực hiện download tất cả assets cần thiết:
 
