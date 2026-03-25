@@ -54,45 +54,48 @@ Lấy git diff để review code mới theo thứ tự ưu tiên:
 
 **CÁCH A — Branch diff** (nếu user cung cấp branch name):
   `git diff main...[branch-name] -- "*.vue" "*.ts" "*.js"`
-  Lấy commit list: `git log main...[branch-name] --oneline`
+  `git log main...[branch-name] --oneline`
 
 **CÁCH B — Commit range** (nếu user cung cấp commit ID bắt đầu):
   `git diff [from-commit]..HEAD -- "*.vue" "*.ts" "*.js"`
-  Lấy commit list: `git log [from-commit]..HEAD --oneline`
+  `git log [from-commit]..HEAD --oneline`
 
 **FALLBACK** (nếu không có gì):
-  - Lấy current branch: `git branch --show-current`
+  - `git branch --show-current`
   - Nếu không phải main: dùng Cách A với current branch
-  - Nếu là main: hiển thị 10 commits gần nhất (`git log --oneline -10`) và yêu cầu user chọn from-commit
+  - Nếu là main: hiển thị 10 commits gần nhất, yêu cầu user chọn
 
-Sau khi xác định nguồn diff:
-1. Lấy diff content
-2. Lấy danh sách files thay đổi: `git diff --name-only [range]`
-3. Lấy commit messages trong range
+Sau khi lấy diff:
+1. `git diff --name-only [range]` → danh sách files thực tế thay đổi
+2. Lấy commit messages
 
-Output JSON:
+**QUAN TRỌNG — Map changed_files → URLs bằng router thực tế:**
+- Đọc file `src/router/index.ts` (hoặc index.js)
+- Parse tất cả routes: { path, component } để lấy mapping component→URL
+- Với mỗi file trong changed_files:
+  a. Nếu là page (src/pages/...): tìm path trong router khớp component đó
+  b. Nếu là component (src/components/...): tìm tất cả pages import component đó, rồi map sang URL
+  c. Nếu là layout (src/layout/...): lấy tất cả URL của routes dùng layout đó
+  d. Nếu là store/composable: tìm pages dùng nó, map sang URL
+- Kết quả: inferred_urls là list URL thực từ router, KHÔNG hardcode, loại trùng
+
+Output JSON (điền giá trị thực từ diff, không dùng ví dụ):
 {
   "review_mode": "branch | commit-range | fallback",
-  "branch": "feat/staff-management hoặc null",
-  "from_commit": "abc1234 hoặc null",
-  "to_commit": "HEAD",
-  "diff_content": "...",
-  "changed_files": ["src/pages/app/Staff.vue"],
-  "commits": ["abc1234 feat: add staff page", "def5678 fix: form validation"],
-  "test_urls": [] hoặc ["http://localhost:8309/staff"],
-  "test_steps": [] hoặc ["1. Vào /staff", "2. Click Thêm"],
-  "has_fix_flag": true,
-  "review_types": ["logic", "ui", "performance"]
+  "branch": null,
+  "from_commit": null,
+  "diff_content": "<nội dung diff thực>",
+  "changed_files": ["<file thực từ git diff>"],
+  "inferred_urls": ["<URL thực từ router>"],
+  "commits": ["<commit thực>"],
+  "test_urls": ["<URL user cung cấp nếu có>"],
+  "test_steps": ["<bước user cung cấp nếu có>"],
+  "has_fix_flag": false,
+  "review_types": ["logic"]
 }
 
-review_types được lấy từ câu trả lời [1/4] của user:
-- Chọn 1 → ["logic"]
-- Chọn 2 → ["ui"]
-- Chọn 3 → ["performance"]
-- Chọn 4 hoặc không chọn → ["logic", "ui", "performance"]
-- Có thể kết hợp, ví dụ chọn 1+2 → ["logic", "ui"]
-
-LƯU Ý: KHÔNG tạo file - trả qua context
+review_types từ câu [1/4]: 1→["logic"], 2→["ui"], 3→["performance"], 4/không chọn→["logic","ui","performance"]
+KHÔNG tạo file - trả qua context
 ```
 
 #### agent-perf-check(Sub-Agent: agent-perf-check)
@@ -106,16 +109,29 @@ LƯU Ý: KHÔNG tạo file - trả qua context
 ```
 Nếu review_types KHÔNG chứa 'performance': trả {"skipped":true} và dừng.
 
-Static từ diff: (1) packages mới >50KB, (2) import không tree-shake (lodash/moment toàn bộ), (3) ảnh thiếu loading=lazy, (4) computed/watch nặng không debounce, (5) API gọi lại mỗi mount không cache.
+BƯỚC 1 — XÁC ĐỊNH URL:
+- Dùng test_urls[0] nếu có, mặc định: https://localhost:8309
+- Verify: curl -sk <url> -o /dev/null -w "%{http_code}" → 200/3xx là đang chạy
+- Nếu fail: lsof -i :8309 | head -3 để kiểm tra port
+- Vẫn không có: HỎI USER port. Xác nhận không có server: lighthouse_skipped=true.
 
-Lighthouse: thử kết nối test_urls[0] hoặc https://localhost:8309 (port mặc định của dự án). Nếu không được HỎI USER port. Vẫn không có server: lighthouse_skipped=true.
-Nếu có server (kể cả HTTPS tự ký): chạy 2 lần với flag --ignore-certificate-errors để bypass SSL:
-  (A) lighthouse <url> --chrome-flags="--headless --ignore-certificate-errors" --output=json --quiet
-  (B) lighthouse <url> --chrome-flags="--headless --ignore-certificate-errors" --output=json --quiet --emulated-form-factor=mobile --throttling-method=simulate --throttling.cpuSlowdownMultiplier=4
-Lấy FCP/LCP/TBT/CLS/TTI. Ngưỡng: LCP<2.5s tốt/>4s kém; TBT<200ms tốt/>600ms kém.
-Nếu chậm: tìm resource block render, bundle >200KB.
+BƯỚC 2 — LIGHTHOUSE (project dùng HTTPS tự ký, BẮT BUỘC --ignore-certificate-errors):
 
-Output JSON: {"static_analysis":{"heavy_packages":[],"bad_imports":[],"lazy_missing":[],"no_cache":[]},"lighthouse_normal":{"fcp":"","lcp":"","tbt":"","cls":0,"score":0},"lighthouse_low_end":{"fcp":"","lcp":"","tbt":"","cls":0,"score":0},"lighthouse_skipped":false,"bottlenecks":[],"low_end_impact":"","passed":true}
+(A) Desktop — giống Chrome DevTools, đo trải nghiệm PC bình thường:
+  lighthouse <url> --preset=desktop --chrome-flags="--headless --ignore-certificate-errors --no-sandbox" --output=json --quiet --only-categories=performance
+
+(B) Mobile simulate — đo trải nghiệm điện thoại/mạng 3G:
+  lighthouse <url> --throttling-method=simulate --chrome-flags="--headless --ignore-certificate-errors --no-sandbox" --output=json --quiet --only-categories=performance
+
+Từ JSON: lấy categories.performance.score(*100), audits[first-contentful-paint/largest-contentful-paint/total-blocking-time/cumulative-layout-shift/speed-index/interactive].displayValue
+
+Ngưỡng: FCP<1.8s tốt; LCP<2.5s tốt/>4s kém; TBT<200ms tốt.
+
+BƯỚC 3 — STATIC ANALYSIS TỪ DIFF:
+(1) packages mới >50KB, (2) import không tree-shake, (3) ảnh thiếu loading=lazy, (4) computed/watch nặng không debounce, (5) API không cache.
+Nếu LCP>2.5s: tìm nguyên nhân (bundle size, blocking resource, API chậm).
+
+Output JSON: {"static_analysis":{"heavy_packages":[],"bad_imports":[],"lazy_missing":[],"no_cache":[]},"lighthouse_desktop":{"fcp":"","lcp":"","tbt":"","cls":0,"tti":"","score":0},"lighthouse_mobile":{"fcp":"","lcp":"","tbt":"","cls":0,"tti":"","score":0},"lighthouse_skipped":false,"bottlenecks":[],"mobile_impact":"","passed":true}
 ```
 
 #### agent-report(Sub-Agent: agent-report)
@@ -188,11 +204,27 @@ Diff content từ context:
 
 - **Prompt**: skill "ck-web-testing" "Nếu review_types KHÔNG chứa 'ui': trả {"status":"skipped","overall":"skipped"} và dừng.
 
-Test UI trên Chrome với Playwright:
-1. URLs: dùng test_urls nếu có; suy luận từ changed_files (Staff.vue→/staff, thử localhost:3000/5173); không được thì HỎI USER port.
-2. Không có server: static analysis từ diff (z-index conflict, hardcoded sizes, overflow-hidden trên dropdown, missing responsive classes) → status='static_only'.
-3. Có server: test 3 breakpoints (1440/768/375px) - chụp screenshot, tìm overflow/element chồng. Test: dropdown mở/đóng, button click, modal, form validation, tab. Kiểm tra text truncate, font fallback, tiếng Việt. Thực hiện test_steps nếu có.
-4. Output JSON: {"status":"tested|static_only|skipped","pages_tested":[{"url":"","breakpoints":{"desktop":"pass|fail","tablet":"pass|fail","mobile":"pass|fail"},"issues":[]}],"interactive_issues":[],"static_warnings":[],"overall":"pass|fail|skipped","total_issues":0}"
+BƯỚC 1 — XÁC ĐỊNH DANH SÁCH URLs CẦN TEST (PHẢI cover TẤT CẢ):
+- Merge: test_urls (user cung cấp) + inferred_urls (từ changed_files)
+- Nếu cả 2 đều rỗng: suy luận lại từ changed_files trong context
+- Ví dụ: changed_files có Register.vue VÀ Staff.vue → phải test CẢ /register VÀ /staff
+- Loại bỏ trùng lặp. KHÔNG bỏ sót file nào trong changed_files.
+
+BƯỚC 2 — VERIFY SERVER:
+- Thử curl -sk https://localhost:8309 -o /dev/null -w "%{http_code}"
+- Nếu không được: HỎI USER port. Không có server: static_only mode.
+
+BƯỚC 3A — LIVE TEST (mỗi URL trong danh sách):
+- 3 breakpoints: 1440/768/375px → screenshot, tìm overflow/element chồng
+- Interactive: dropdown mở/đóng, button click, modal, form validation, tab
+- Text: truncate, font fallback, tiếng Việt
+- Thực hiện test_steps nếu có (chỉ cho URL tương ứng)
+
+BƯỚC 3B — STATIC ANALYSIS (nếu không có server):
+Phân tích diff từng file: z-index conflict, hardcoded sizes, overflow-hidden trên dropdown, missing responsive.
+
+BƯỚC 4 — OUTPUT JSON (LUÔN có, dù skipped):
+{"status":"tested|static_only|skipped","pages_tested":[{"url":"","breakpoints":{"desktop":"pass|fail","tablet":"pass|fail","mobile":"pass|fail"},"issues":[]}],"interactive_issues":[],"static_warnings":[],"overall":"pass|fail|skipped","total_issues":0}"
 
 #### skill-auto-fix(ck-fix)
 
