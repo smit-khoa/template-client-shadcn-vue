@@ -4,7 +4,7 @@ description: review-fe
 ```mermaid
 flowchart TD
     start-node-default([Start])
-    prompt-branch-input[Hỏi user các thông tin sau:]
+    prompt-branch-input[Hỏi user tuần tự các thông ...]
     agent-git-diff[Sub-Agent: agent-git-diff]
     skill-code-review[[Skill: ck-code-review]]
     skill-visual-test[[Skill: ck-web-testing]]
@@ -82,8 +82,15 @@ Output JSON:
   "test_urls": [] hoặc ["http://localhost:8309/staff"],
   "test_steps": [] hoặc ["1. Vào /staff", "2. Click Thêm"],
   "has_fix_flag": true,
-  "special_requirements": "both"
+  "review_types": ["logic", "ui", "performance"]
 }
+
+review_types được lấy từ câu trả lời [1/4] của user:
+- Chọn 1 → ["logic"]
+- Chọn 2 → ["ui"]
+- Chọn 3 → ["performance"]
+- Chọn 4 hoặc không chọn → ["logic", "ui", "performance"]
+- Có thể kết hợp, ví dụ chọn 1+2 → ["logic", "ui"]
 
 LƯU Ý: KHÔNG tạo file - trả qua context
 ```
@@ -97,50 +104,18 @@ LƯU Ý: KHÔNG tạo file - trả qua context
 **Prompt**:
 
 ```
-Đo performance chi tiết từ diff + Lighthouse:
+Nếu review_types KHÔNG chứa 'performance': trả {"skipped":true} và dừng.
 
-## BƯỚC 1 — PHÂN TÍCH STATIC (từ diff)
-1. package.json changes → flag packages mới > 50KB (tra npmjs.com/package/<name>)
-2. Imports không tree-shakeable: `import _ from 'lodash'` thay vì `import debounce from 'lodash/debounce'`
-3. Large images không có `loading="lazy"` hoặc không dùng WebP
-4. Vòng lặp nặng trong computed/watch không có debounce/throttle
-5. API calls không có caching (gọi lại mỗi lần mount)
+Static từ diff: (1) packages mới >50KB, (2) import không tree-shake (lodash/moment toàn bộ), (3) ảnh thiếu loading=lazy, (4) computed/watch nặng không debounce, (5) API gọi lại mỗi mount không cache.
 
-## BƯỚC 2 — ĐO LIGHTHOUSE (nếu server đang chạy)
-Nếu test_urls[0] accessible:
-```
-npx lighthouse <url> --output=json --quiet --chrome-flags="--headless" \
-  --throttling-method=simulate \
-  --throttling.cpuSlowdownMultiplier=4
-```
-Thực hiện 2 lần đo:
-- **Cấu hình bình thường** (default): mô phỏng máy tính thông thường
-- **Cấu hình thấp** (--throttling.cpuSlowdownMultiplier=4 + Fast 3G): mô phỏng máy yếu/mạng chậm
+Lighthouse: thử kết nối test_urls[0] hoặc https://localhost:8309 (port mặc định của dự án). Nếu không được HỎI USER port. Vẫn không có server: lighthouse_skipped=true.
+Nếu có server (kể cả HTTPS tự ký): chạy 2 lần với flag --ignore-certificate-errors để bypass SSL:
+  (A) lighthouse <url> --chrome-flags="--headless --ignore-certificate-errors" --output=json --quiet
+  (B) lighthouse <url> --chrome-flags="--headless --ignore-certificate-errors" --output=json --quiet --emulated-form-factor=mobile --throttling-method=simulate --throttling.cpuSlowdownMultiplier=4
+Lấy FCP/LCP/TBT/CLS/TTI. Ngưỡng: LCP<2.5s tốt/>4s kém; TBT<200ms tốt/>600ms kém.
+Nếu chậm: tìm resource block render, bundle >200KB.
 
-Lấy các metrics:
-- **FCP** (First Contentful Paint): < 1.8s = tốt, 1.8-3s = trung bình, > 3s = chậm
-- **LCP** (Largest Contentful Paint): < 2.5s = tốt, > 4s = kém
-- **TBT** (Total Blocking Time): < 200ms = tốt, > 600ms = kém
-- **CLS** (Cumulative Layout Shift): < 0.1 = tốt, > 0.25 = kém
-- **TTI** (Time to Interactive): thời gian đến khi có thể tương tác
-- **Speed Index**: tốc độ hiển thị nội dung
-
-## BƯỚC 3 — XÁC ĐỊNH NGUYÊN NHÂN CHẬM
-Nếu LCP > 2.5s hoặc TBT > 200ms:
-- Kiểm tra Network waterfall: resource nào block render?
-- Kiểm tra JavaScript bundle size: file nào > 200KB?
-- Kiểm tra render-blocking CSS/fonts
-- Kiểm tra API response time trong changed_files
-
-Output JSON:
-{
-  "static_analysis": {"heavy_packages": [], "bad_imports": [], "lazy_load_missing": [], "api_no_cache": []},
-  "lighthouse_normal": {"fcp": "1.2s", "lcp": "2.1s", "tbt": "150ms", "cls": 0.05, "tti": "3.2s", "score": 85},
-  "lighthouse_low_end": {"fcp": "3.5s", "lcp": "6.2s", "tbt": "800ms", "cls": 0.12, "tti": "8.1s", "score": 42},
-  "bottlenecks": [{"resource": "vendor.js", "size": "450KB", "cause": "lodash không tree-shake"}],
-  "low_end_impact": "trang load > 6s trên mạng 3G, không dùng được",
-  "passed": false
-}
+Output JSON: {"static_analysis":{"heavy_packages":[],"bad_imports":[],"lazy_missing":[],"no_cache":[]},"lighthouse_normal":{"fcp":"","lcp":"","tbt":"","cls":0,"score":0},"lighthouse_low_end":{"fcp":"","lcp":"","tbt":"","cls":0,"score":0},"lighthouse_skipped":false,"bottlenecks":[],"low_end_impact":"","passed":true}
 ```
 
 #### agent-report(Sub-Agent: agent-report)
@@ -152,83 +127,51 @@ Output JSON:
 **Prompt**:
 
 ```
-Tổng hợp kết quả từ code-review + visual-test + perf-check và tạo báo cáo đầy đủ.
+Tổng hợp code-review + visual-test + perf-check. LUÔN hiển thị đủ 3 section dù skipped.
 
-## FORMAT BÁO CÁO
-
----
+Format:
 ## 📋 KẾT QUẢ REVIEW
+**Branch/Range:** ... | **Files:** X | **Verdict:** 🔴BLOCK/🟡REVIEW/🟢PASS
 
-**Branch/Range:** [branch hoặc commit range]
-**Files thay đổi:** X files
-**Verdict:** 🔴 BLOCK / 🟡 REVIEW / 🟢 PASS
-
----
-
-### 🔴 CODE ISSUES ([số] vấn đề)
+### 🔴 CODE ISSUES (N vấn đề)
 | # | File | Vấn đề | Loại | Giải pháp |
-|---|------|---------|------|----------|
-| 1 | src/... | mô tả | safe_to_fix/needs_dev | cách sửa cụ thể |
+(⚪ SKIPPED nếu không chọn logic)
 
-### 🖥️ UI/VISUAL TEST ([pass/fail])
-**Kết quả theo breakpoint:**
+### 🖥️ UI/VISUAL TEST
 | Trang | Desktop | Tablet | Mobile | Vấn đề |
-|-------|---------|--------|--------|--------|
-| /staff | ✅ | ✅ | ❌ | text tràn ra ngoài container |
-
-**Interactive issues:**
 | Element | Vấn đề | Severity | Giải pháp |
-|---------|---------|----------|----------|
-| Dropdown filter | không mở được trên mobile | critical | thêm z-index: 50, kiểm tra overflow:hidden cha |
+(⚪ SKIPPED / ⚠️ STATIC ONLY — liệt kê static_warnings)
 
-### ⚡ PERFORMANCE ([score bình thường] / [score máy yếu])
+### ⚡ PERFORMANCE (score bình thường / máy yếu)
 | Metric | Bình thường | Máy yếu/3G | Đánh giá |
-|--------|-------------|------------|----------|
-| FCP | 1.2s | 4.5s | ⚠️ Chậm trên 3G |
-| LCP | 2.1s | 7.2s | 🔴 Critical |
-| TBT | 150ms | 900ms | 🔴 Blocking |
-
-**Bottlenecks xác định:**
-| Nguyên nhân | Impact | Giải pháp cụ thể |
-|-------------|--------|------------------|
-| lodash import toàn bộ | +200KB bundle | Đổi sang `import debounce from 'lodash/debounce'` |
-| API /staff gọi lại khi re-render | +300ms | Thêm `staleTime: 5 * 60 * 1000` trong useQuery |
-
----
+FCP<1.8s tốt, LCP<2.5s tốt, TBT<200ms tốt.
+| Nguyên nhân | Impact | Giải pháp |
+(⚪ SKIPPED / ⚠️ NO SERVER)
 
 ### 📝 PHƯƠNG ÁN GIẢI QUYẾT
-
-**Ưu tiên cao (cần fix trước khi merge):**
-1. [vấn đề cụ thể] → [bước thực hiện cụ thể, tên file, tên hàm]
-
-**Ưu tiên trung bình (fix trong sprint này):**
-1. ...
-
-**Ưu tiên thấp (backlog):**
-1. ...
-
----
+Ưu tiên cao (fix trước merge): [vấn đề → bước cụ thể, file/hàm]
+Ưu tiên trung bình: ...
+Ưu tiên thấp: ...
 
 ### 💬 FEEDBACK GỬI DEV
-```
-[Message sẵn sàng copy-paste gửi DEV, liệt kê issues cần fix]
-```
+[message copy-paste]
 
----
-
-LOGIC VERDICT:
-- BLOCK: có critical issues (logic bug, security, layout vỡ hoàn toàn, LCP > 6s trên 3G)
-- REVIEW: có warnings cần xem xét trước merge
-- PASS: chỉ có minor/info issues
-
-Nếu has_fix_flag = true → thêm dòng "💡 Có thể auto-fix [X] safe issues — xem bên dưới"
+Verdict: BLOCK=critical; REVIEW=warnings; PASS=minor.
+Nếu has_fix_flag=true: '💡 Có thể auto-fix X safe issues'
 ```
 
 ## Skill Nodes
 
 #### skill-code-review(ck-code-review)
 
-- **Prompt**: skill "ck-code-review" "Review code diff sau theo conventions của dự án này (CLAUDE.md):
+- **Prompt**: skill "ck-code-review" "## KIỂM TRA ĐIỀU KIỆN TRƯỚC
+Nếu review_types trong context KHÔNG chứa 'logic':
+→ Trả về ngay: {"skipped": true, "reason": "User không chọn review Logic", "issues": []}
+→ DỪNG, không làm gì thêm.
+
+---
+
+Review code diff sau theo conventions của dự án này (CLAUDE.md):
 - Naming: snake_case variables, camelCase functions, PascalCase components
 - Vue 3: v-for :key, emit typing, prop validation
 - TypeScript: tránh any, null checks
@@ -243,51 +186,13 @@ Diff content từ context:
 
 #### skill-visual-test(ck-web-testing)
 
-- **Prompt**: skill "ck-web-testing" "Chạy Playwright test UI/visual cho code mới trên Chrome:
+- **Prompt**: skill "ck-web-testing" "Nếu review_types KHÔNG chứa 'ui': trả {"status":"skipped","overall":"skipped"} và dừng.
 
-## BƯỚC 1 — XÁC ĐỊNH URLs CẦN TEST
-- Nếu test_urls có trong context: dùng URLs đó
-- Nếu không: tự suy luận từ changed_files (ví dụ src/pages/Staff.vue → /staff)
-- Nếu vẫn không rõ: hỏi user cung cấp URL và các bước để đến được giao diện đó
-
-## BƯỚC 2 — THỰC HIỆN TEST_STEPS (nếu có)
-- Thực hiện tuần tự từng bước user cung cấp
-- Ví dụ: vào /staff → click "Thêm nhân viên" → điền form → submit
-
-## BƯỚC 3 — KIỂM TRA LAYOUT & UI (Playwright + chromium)
-Với mỗi URL/trang:
-
-### 3.1 Responsive — test 3 breakpoint:
-- Desktop: 1440×900
-- Tablet: 768×1024
-- Mobile: 375×812
-→ Chụp screenshot mỗi breakpoint, phát hiện overflow/text bị cắt/element chồng lên nhau
-
-### 3.2 Interactive elements:
-- Dropdown/Select: click để mở → verify menu hiện đúng, có thể chọn item, đóng lại được
-- Button: click từng button → verify có phản hồi (loading state, disabled state, toast, navigate)
-- Modal/Dialog: mở → verify hiển thị đúng, overlay có thể click, nút đóng hoạt động
-- Form inputs: focus/blur → verify placeholder, validation message hiển thị đúng
-- Tab/Accordion: click để chuyển → verify content thay đổi đúng
-
-### 3.3 Text & Typography:
-- Verify text không bị truncate bất thường
-- Verify font load đúng (không fallback sang serif)
-- Verify số, ngày tháng, tiếng Việt có dấu hiển thị đúng
-
-### 3.4 Visual comparison (nếu có baseline):
-- So sánh screenshot với baselines tại: e2e/tests/visual-baseline.spec.ts-snapshots/
-- Highlight visual differences
-
-## BƯỚC 4 — OUTPUT
-Trả về JSON:
-{
-  "pages_tested": [{"url": "...", "steps_performed": [], "breakpoints": {"desktop": "pass/fail", "tablet": "pass/fail", "mobile": "pass/fail"}, "issues": [{"element": "...", "issue": "...", "severity": "critical|warning|info", "screenshot": "path"}]}],
-  "interactive_issues": [{"element": "dropdown X", "issue": "không mở được", "severity": "critical"}],
-  "text_issues": [],
-  "overall": "pass|fail",
-  "total_issues": 0
-}"
+Test UI trên Chrome với Playwright:
+1. URLs: dùng test_urls nếu có; suy luận từ changed_files (Staff.vue→/staff, thử localhost:3000/5173); không được thì HỎI USER port.
+2. Không có server: static analysis từ diff (z-index conflict, hardcoded sizes, overflow-hidden trên dropdown, missing responsive classes) → status='static_only'.
+3. Có server: test 3 breakpoints (1440/768/375px) - chụp screenshot, tìm overflow/element chồng. Test: dropdown mở/đóng, button click, modal, form validation, tab. Kiểm tra text truncate, font fallback, tiếng Việt. Thực hiện test_steps nếu có.
+4. Output JSON: {"status":"tested|static_only|skipped","pages_tested":[{"url":"","breakpoints":{"desktop":"pass|fail","tablet":"pass|fail","mobile":"pass|fail"},"issues":[]}],"interactive_issues":[],"static_warnings":[],"overall":"pass|fail|skipped","total_issues":0}"
 
 #### skill-auto-fix(ck-fix)
 
@@ -309,39 +214,43 @@ Sau khi fix: list files đã sửa, KHÔNG tự commit, hỏi user confirm"
 
 ### Prompt Node Details
 
-#### prompt-branch-input(Hỏi user các thông tin sau:)
+#### prompt-branch-input(Hỏi user tuần tự các thông ...)
 
 ```
-Hỏi user các thông tin sau:
-
-**[BẮT BUỘC] Phạm vi code cần review** — chọn 1 trong 2 cách:
-
-- **Cách A — Branch diff** (team dùng feature branch):
-  Branch name cần review so với main, ví dụ: `feat/staff-management`
-  → Lấy toàn bộ thay đổi của branch so với main
-
-- **Cách B — Commit range** (team commit thẳng vào develop/main):
-  Commit ID bắt đầu (từ commit nào) đến HEAD, ví dụ: `abc1234`
-  → Lấy tất cả thay đổi từ commit đó đến commit mới nhất
-
-  Nếu không nhớ commit ID, AI sẽ hiển thị 10 commits gần nhất để chọn.
-  Nếu không cung cấp gì: dùng current branch so với main.
+Hỏi user tuần tự các thông tin sau, hỏi từng câu một và chờ trả lời trước khi hỏi tiếp:
 
 ---
 
-**[Optional] Thông tin bổ sung:**
+**[1/4 — BẮT BUỘC] Loại review muốn thực hiện:**
 
-- **URL(s) cần test** (nếu muốn test UI)
-  Ví dụ: `http://localhost:8309/staff`
-  Nếu không có: AI tự suy luận từ changed_files
+Chọn một hoặc nhiều:
+- **1 — Logic code**: review naming, DRY, YAGNI, TypeScript types, Vue 3 patterns, potential bugs
+- **2 — Giao diện UI**: test layout responsive (Desktop/Tablet/Mobile), dropdown, button, form, modal, text rendering
+- **3 — Performance**: đo tốc độ tải trang, LCP/FCP/TBT, bundle size, bottlenecks trên máy yếu/mạng 3G
+- **4 — Tất cả** (mặc định nếu không chọn)
 
-- **Các bước test** (nếu có flow cụ thể)
-  Ví dụ: "1. Vào /staff → 2. Click Thêm nhân viên → 3. Điền form"
-  Nếu không có: AI tự suy luận từ code
+---
 
-- **Loại review**: logic, UI, hoặc cả hai (mặc định: cả hai)
+**[2/4 — BẮT BUỘC] Phạm vi code cần review** — chọn 1 trong 2 cách:
 
-- **Muốn AI auto-fix safe issues không?** (có/không)
+- **Cách A — Branch diff**: Branch name cần review so với main, ví dụ: `feat/staff-management`
+- **Cách B — Commit range**: Commit ID bắt đầu đến HEAD, ví dụ: `abc1234`
+  (Nếu không nhớ: AI sẽ hiển thị 10 commits gần nhất để chọn)
+
+Nếu không cung cấp gì: dùng current branch so với main.
+
+---
+
+**[3/4 — Hỏi nếu chọn UI hoặc Tất cả] Thông tin test giao diện:**
+
+- **URL(s) cần test**: ví dụ `http://localhost:8309/staff`
+  (Nếu không có: AI tự suy luận từ changed_files)
+- **Các bước để đến giao diện đó**: ví dụ "1. Vào /staff → 2. Click Thêm nhân viên → 3. Điền form"
+  (Nếu không có: AI tự suy luận từ code)
+
+---
+
+**[4/4 — BẮT BUỘC] Muốn AI auto-fix các safe issues không?** (có/không)
 ```
 
 ### AskUserQuestion Node Details

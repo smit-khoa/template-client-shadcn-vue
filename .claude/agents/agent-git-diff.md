@@ -35,7 +35,14 @@ Output JSON:
   "test_urls": [] hoặc ["http://localhost:8309/staff"],
   "test_steps": [] hoặc ["1. Vào /staff", "2. Click Thêm"],
   "has_fix_flag": true,
-  "special_requirements": "both"
+  "review_types": ["logic", "ui", "performance"]
 }
+
+review_types được lấy từ câu trả lời [1/4] của user:
+- Chọn 1 → ["logic"]
+- Chọn 2 → ["ui"]
+- Chọn 3 → ["performance"]
+- Chọn 4 hoặc không chọn → ["logic", "ui", "performance"]
+- Có thể kết hợp, ví dụ chọn 1+2 → ["logic", "ui"]
 
 LƯU Ý: KHÔNG tạo file - trả qua context

@@ -3,73 +3,34 @@ name: agent-report
 description: Tổng hợp kết quả và tạo report
 model: haiku
 ---
-Tổng hợp kết quả từ code-review + visual-test + perf-check và tạo báo cáo đầy đủ.
+Tổng hợp code-review + visual-test + perf-check. LUÔN hiển thị đủ 3 section dù skipped.
 
-## FORMAT BÁO CÁO
-
----
+Format:
 ## 📋 KẾT QUẢ REVIEW
+**Branch/Range:** ... | **Files:** X | **Verdict:** 🔴BLOCK/🟡REVIEW/🟢PASS
 
-**Branch/Range:** [branch hoặc commit range]
-**Files thay đổi:** X files
-**Verdict:** 🔴 BLOCK / 🟡 REVIEW / 🟢 PASS
-
----
-
-### 🔴 CODE ISSUES ([số] vấn đề)
+### 🔴 CODE ISSUES (N vấn đề)
 | # | File | Vấn đề | Loại | Giải pháp |
-|---|------|---------|------|----------|
-| 1 | src/... | mô tả | safe_to_fix/needs_dev | cách sửa cụ thể |
+(⚪ SKIPPED nếu không chọn logic)
 
-### 🖥️ UI/VISUAL TEST ([pass/fail])
-**Kết quả theo breakpoint:**
+### 🖥️ UI/VISUAL TEST
 | Trang | Desktop | Tablet | Mobile | Vấn đề |
-|-------|---------|--------|--------|--------|
-| /staff | ✅ | ✅ | ❌ | text tràn ra ngoài container |
-
-**Interactive issues:**
 | Element | Vấn đề | Severity | Giải pháp |
-|---------|---------|----------|----------|
-| Dropdown filter | không mở được trên mobile | critical | thêm z-index: 50, kiểm tra overflow:hidden cha |
+(⚪ SKIPPED / ⚠️ STATIC ONLY — liệt kê static_warnings)
 
-### ⚡ PERFORMANCE ([score bình thường] / [score máy yếu])
+### ⚡ PERFORMANCE (score bình thường / máy yếu)
 | Metric | Bình thường | Máy yếu/3G | Đánh giá |
-|--------|-------------|------------|----------|
-| FCP | 1.2s | 4.5s | ⚠️ Chậm trên 3G |
-| LCP | 2.1s | 7.2s | 🔴 Critical |
-| TBT | 150ms | 900ms | 🔴 Blocking |
-
-**Bottlenecks xác định:**
-| Nguyên nhân | Impact | Giải pháp cụ thể |
-|-------------|--------|------------------|
-| lodash import toàn bộ | +200KB bundle | Đổi sang `import debounce from 'lodash/debounce'` |
-| API /staff gọi lại khi re-render | +300ms | Thêm `staleTime: 5 * 60 * 1000` trong useQuery |
-
----
+FCP<1.8s tốt, LCP<2.5s tốt, TBT<200ms tốt.
+| Nguyên nhân | Impact | Giải pháp |
+(⚪ SKIPPED / ⚠️ NO SERVER)
 
 ### 📝 PHƯƠNG ÁN GIẢI QUYẾT
-
-**Ưu tiên cao (cần fix trước khi merge):**
-1. [vấn đề cụ thể] → [bước thực hiện cụ thể, tên file, tên hàm]
-
-**Ưu tiên trung bình (fix trong sprint này):**
-1. ...
-
-**Ưu tiên thấp (backlog):**
-1. ...
-
----
+Ưu tiên cao (fix trước merge): [vấn đề → bước cụ thể, file/hàm]
+Ưu tiên trung bình: ...
+Ưu tiên thấp: ...
 
 ### 💬 FEEDBACK GỬI DEV
-```
-[Message sẵn sàng copy-paste gửi DEV, liệt kê issues cần fix]
-```
+[message copy-paste]
 
----
-
-LOGIC VERDICT:
-- BLOCK: có critical issues (logic bug, security, layout vỡ hoàn toàn, LCP > 6s trên 3G)
-- REVIEW: có warnings cần xem xét trước merge
-- PASS: chỉ có minor/info issues
-
-Nếu has_fix_flag = true → thêm dòng "💡 Có thể auto-fix [X] safe issues — xem bên dưới"
+Verdict: BLOCK=critical; REVIEW=warnings; PASS=minor.
+Nếu has_fix_flag=true: '💡 Có thể auto-fix X safe issues'
