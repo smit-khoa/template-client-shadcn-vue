@@ -10,7 +10,7 @@ flowchart TD
     skill-visual-test[[Skill: ck-web-testing]]
     agent-perf-check[Sub-Agent: agent-perf-check]
     agent-report[Sub-Agent: agent-report]
-    ask-fix-action{AskUserQuestion:<br/>Bạn muốn làm gì với các safe issues?}
+    ask-fix-action{AskUserQuestion:<br/>Report đã được lưu. Bạn muốn làm gì tiếp theo?}
     skill-auto-fix[[Skill: ck-fix]]
     end_node_default([End])
 
@@ -22,10 +22,10 @@ flowchart TD
     skill-code-review --> agent-report
     skill-visual-test --> agent-report
     agent-perf-check --> agent-report
-    agent-report --> ask-fix-action
-    ask-fix-action -->|Auto-fix safe issues| skill-auto-fix
-    ask-fix-action -->|Xong, không cần fix| end_node_default
+    ask-fix-action -->|Fix luôn safe issues| skill-auto-fix
+    ask-fix-action -->|Xong, gửi feedback cho DEV| end_node_default
     skill-auto-fix --> end_node_default
+    agent-report --> ask-fix-action
 ```
 
 ## Workflow Execution Guide
@@ -45,56 +45,34 @@ Follow the Mermaid flowchart above to execute the workflow. Each node type has s
 
 **Description**: Lấy git diff của branch hoặc commit cụ thể
 
-**Model**: haiku
+**Model**: sonnet
 
 **Prompt**:
 
 ```
-Lấy git diff để review code mới theo thứ tự ưu tiên:
+Lấy git diff theo thứ tự ưu tiên:
 
-**CÁCH A — Branch diff** (nếu user cung cấp branch name):
-  `git diff main...[branch-name] -- "*.vue" "*.ts" "*.js"`
-  `git log main...[branch-name] --oneline`
-
-**CÁCH B — Commit range** (nếu user cung cấp commit ID bắt đầu):
-  `git diff [from-commit]..HEAD -- "*.vue" "*.ts" "*.js"`
-  `git log [from-commit]..HEAD --oneline`
-
-**FALLBACK** (nếu không có gì):
-  - `git branch --show-current`
-  - Nếu không phải main: dùng Cách A với current branch
-  - Nếu là main: hiển thị 10 commits gần nhất, yêu cầu user chọn
+CÁCH A (branch): git diff main...[branch] -- "*.vue" "*.ts" "*.js" + git log main...[branch] --oneline
+CÁCH B (commit): git diff [from]..HEAD -- "*.vue" "*.ts" "*.js" + git log [from]..HEAD --oneline
+FALLBACK: git branch --show-current → nếu không phải main dùng Cách A, nếu main hiển thị 10 commits gần nhất
 
 Sau khi lấy diff:
-1. `git diff --name-only [range]` → danh sách files thực tế thay đổi
-2. Lấy commit messages
+1. git diff --name-only [range] → danh sách files
+2. git log --format="%s%n%b" [range] → commit messages đầy đủ
+3. Tìm keywords trong commits: TODO, FIXME, hotfix, temporary, workaround → lưu commit_intents
 
-**QUAN TRỌNG — Map changed_files → URLs bằng router thực tế:**
-- Đọc file `src/router/index.ts` (hoặc index.js)
-- Parse tất cả routes: { path, component } để lấy mapping component→URL
-- Với mỗi file trong changed_files:
-  a. Nếu là page (src/pages/...): tìm path trong router khớp component đó
-  b. Nếu là component (src/components/...): tìm tất cả pages import component đó, rồi map sang URL
-  c. Nếu là layout (src/layout/...): lấy tất cả URL của routes dùng layout đó
-  d. Nếu là store/composable: tìm pages dùng nó, map sang URL
-- Kết quả: inferred_urls là list URL thực từ router, KHÔNG hardcode, loại trùng
+Map changed_files → URLs bằng router thực tế:
+- Đọc src/router/index.ts, parse routes {path, component}
+- pages/X.vue → tìm path trong router
+- components/X → tìm pages import nó → map URL
+- layout/X → tất cả routes dùng layout đó
+- store/composable → tìm pages dùng → map URL
+Kết quả: inferred_urls từ router, không hardcode
 
-Output JSON (điền giá trị thực từ diff, không dùng ví dụ):
-{
-  "review_mode": "branch | commit-range | fallback",
-  "branch": null,
-  "from_commit": null,
-  "diff_content": "<nội dung diff thực>",
-  "changed_files": ["<file thực từ git diff>"],
-  "inferred_urls": ["<URL thực từ router>"],
-  "commits": ["<commit thực>"],
-  "test_urls": ["<URL user cung cấp nếu có>"],
-  "test_steps": ["<bước user cung cấp nếu có>"],
-  "has_fix_flag": false,
-  "review_types": ["logic"]
-}
+Output JSON (giá trị thực, không ví dụ):
+{"review_mode":"branch|commit-range|fallback","diff_content":"<thực>","changed_files":["<thực>"],"inferred_urls":["<thực>"],"commits":["<thực>"],"commit_intents":["<keyword: context>"],"test_urls":[],"test_steps":[],"review_types":["logic"]}
 
-review_types từ câu [1/4]: 1→["logic"], 2→["ui"], 3→["performance"], 4/không chọn→["logic","ui","performance"]
+review_types: 1→["logic"], 2→["ui"], 3→["performance"], 4→["logic","ui","performance"]
 KHÔNG tạo file - trả qua context
 ```
 
@@ -102,7 +80,7 @@ KHÔNG tạo file - trả qua context
 
 **Description**: Kiểm tra bundle size và performance
 
-**Model**: haiku
+**Model**: sonnet
 
 **Prompt**:
 
@@ -111,120 +89,127 @@ Nếu review_types KHÔNG chứa 'performance': trả {"skipped":true} và dừn
 
 BƯỚC 1 — XÁC ĐỊNH URL:
 - Dùng test_urls[0] nếu có, mặc định: https://localhost:8309
-- Verify: curl -sk <url> -o /dev/null -w "%{http_code}" → 200/3xx là đang chạy
-- Nếu fail: lsof -i :8309 | head -3 để kiểm tra port
-- Vẫn không có: HỎI USER port. Xác nhận không có server: lighthouse_skipped=true.
+- Verify: curl -sk <url> -o /dev/null -w "%{http_code}" → 200/3xx là OK
+- Nếu fail: lsof -i :8309 | head -3. Vẫn không có: HỎI USER port. Không có server: lighthouse_skipped=true.
 
-BƯỚC 2 — LIGHTHOUSE (project dùng HTTPS tự ký, BẮT BUỘC --ignore-certificate-errors):
+BƯỚC 2 — LIGHTHOUSE (HTTPS tự ký → BẮT BUỘC --ignore-certificate-errors --no-sandbox):
+(A) Desktop: lighthouse <url> --preset=desktop --chrome-flags="--headless --ignore-certificate-errors --no-sandbox" --output=json --quiet --only-categories=performance
+(B) Mobile 3G: thêm --throttling-method=simulate --throttling.cpuSlowdownMultiplier=4
 
-(A) Desktop — giống Chrome DevTools, đo trải nghiệm PC bình thường:
-  lighthouse <url> --preset=desktop --chrome-flags="--headless --ignore-certificate-errors --no-sandbox" --output=json --quiet --only-categories=performance
-
-(B) Mobile simulate — đo trải nghiệm điện thoại/mạng 3G:
-  lighthouse <url> --throttling-method=simulate --chrome-flags="--headless --ignore-certificate-errors --no-sandbox" --output=json --quiet --only-categories=performance
-
-Từ JSON: lấy categories.performance.score(*100), audits[first-contentful-paint/largest-contentful-paint/total-blocking-time/cumulative-layout-shift/speed-index/interactive].displayValue
-
+Parse: categories.performance.score(*100), audits[fcp/lcp/tbt/cls/tti].displayValue
 Ngưỡng: FCP<1.8s tốt; LCP<2.5s tốt/>4s kém; TBT<200ms tốt.
 
-BƯỚC 3 — STATIC ANALYSIS TỪ DIFF:
-(1) packages mới >50KB, (2) import không tree-shake, (3) ảnh thiếu loading=lazy, (4) computed/watch nặng không debounce, (5) API không cache.
-Nếu LCP>2.5s: tìm nguyên nhân (bundle size, blocking resource, API chậm).
+⚠️ CẢNH BÁO QUAN TRỌNG — in rõ trong báo cáo:
+"Kết quả Lighthouse đo trên localhost (dev mode) — KHÔNG đại diện cho production.
+ Localhost thiếu: CDN, caching headers, minified bundle, real network latency.
+ Score thực tế trên production thường cao hơn 15-25 điểm (bundle minified, CDN).
+ Để đo chính xác: chạy npm run build → serve dist → đo lại."
 
-Output JSON: {"static_analysis":{"heavy_packages":[],"bad_imports":[],"lazy_missing":[],"no_cache":[]},"lighthouse_desktop":{"fcp":"","lcp":"","tbt":"","cls":0,"tti":"","score":0},"lighthouse_mobile":{"fcp":"","lcp":"","tbt":"","cls":0,"tti":"","score":0},"lighthouse_skipped":false,"bottlenecks":[],"mobile_impact":"","passed":true}
+BƯỚC 3 — STATIC ANALYSIS TỪ DIFF:
+(1) packages mới >50KB, (2) import không tree-shake, (3) ảnh thiếu loading=lazy, (4) API gọi lại mỗi mount không cache.
+Nếu LCP>2.5s: tìm resource block render, bundle >200KB.
+
+Output JSON: {"lighthouse_desktop":{...},"lighthouse_mobile":{...},"lighthouse_skipped":false,"localhost_warning":true,"bottlenecks":[],"static_analysis":{}}
 ```
 
 #### agent-report(Sub-Agent: agent-report)
 
-**Description**: Tổng hợp kết quả và tạo report
+**Description**: Tổng hợp, phân tích, đề xuất giải pháp + định hướng tư duy + ghi báo cáo
 
-**Model**: haiku
+**Model**: sonnet
 
 **Prompt**:
 
 ```
-Tổng hợp code-review + visual-test + perf-check. LUÔN hiển thị đủ 3 section dù skipped.
+Tổng hợp kết quả. CHỈ render section theo review_types.
 
-Format:
-## 📋 KẾT QUẢ REVIEW
-**Branch/Range:** ... | **Files:** X | **Verdict:** 🔴BLOCK/🟡REVIEW/🟢PASS
+### 📋 KẾT QUẢ REVIEW
+**Branch:** ... | **Files:** X | **Verdict:** 🔴BLOCK/🟡REVIEW/🟢PASS
 
-### 🔴 CODE ISSUES (N vấn đề)
-| # | File | Vấn đề | Loại | Giải pháp |
-(⚪ SKIPPED nếu không chọn logic)
+Nếu 'logic': ### 🔴 CODE ISSUES
+| # | File | Vấn đề | Giải pháp hiện tại | Giải pháp tốt hơn | Tại sao |
+Security issues: 🔒 severity=CRITICAL
 
-### 🖥️ UI/VISUAL TEST
-| Trang | Desktop | Tablet | Mobile | Vấn đề |
-| Element | Vấn đề | Severity | Giải pháp |
-(⚪ SKIPPED / ⚠️ STATIC ONLY — liệt kê static_warnings)
+Nếu 'ui': ### 🖥️ UI/VISUAL TEST
+| Trang | Desktop | Tablet | Mobile | Vấn đề | Giải pháp |
 
-### ⚡ PERFORMANCE (score bình thường / máy yếu)
-| Metric | Bình thường | Máy yếu/3G | Đánh giá |
-FCP<1.8s tốt, LCP<2.5s tốt, TBT<200ms tốt.
-| Nguyên nhân | Impact | Giải pháp |
-(⚪ SKIPPED / ⚠️ NO SERVER)
+Nếu 'performance': ### ⚡ PERFORMANCE
+⚠️ Localhost ≠ production (thiếu CDN, minify). Score thực tế cao hơn 15-25 điểm.
+| Metric | Desktop | Mobile 3G | Đánh giá |
 
-### 📝 PHƯƠNG ÁN GIẢI QUYẾT
-Ưu tiên cao (fix trước merge): [vấn đề → bước cụ thể, file/hàm]
-Ưu tiên trung bình: ...
-Ưu tiên thấp: ...
+### 🎯 COMMIT INTENT
+Với mỗi issue: nếu commit message giải thích lý do → "⚠️ Có thể intentional". Nếu có TODO/FIXME → "📌 DEV biết". Không bỏ issue, chỉ giảm severity.
 
-### 💬 FEEDBACK GỬI DEV
-[message copy-paste]
+### 📊 SO SÁNH LẦN REVIEW TRƯỚC
+Tìm plans/reports/review-*-{branch}.md gần nhất. Nếu có: ✅RESOLVED / ⚠️STILL OPEN / 🆕NEW. Nếu không: bỏ qua.
 
-Verdict: BLOCK=critical; REVIEW=warnings; PASS=minor.
-Nếu has_fix_flag=true: '💡 Có thể auto-fix X safe issues'
+### 🔗 CROSS-VALIDATION: nhóm issues liên quan giữa sections, tránh trùng.
+### 📝 PHƯƠNG ÁN: ưu tiên cao/trung bình + 🧭 định hướng tư duy
+### 💬 FEEDBACK GỬI DEV [message copy-paste]
+
+Verdict: BLOCK=security/critical; REVIEW=warnings; PASS=minor.
+
+GHI FILE: plans/reports/review-{date +%y%m%d-%H%M}-{branch}.md với full report + root cause.
 ```
 
 ## Skill Nodes
 
 #### skill-code-review(ck-code-review)
 
-- **Prompt**: skill "ck-code-review" "## KIỂM TRA ĐIỀU KIỆN TRƯỚC
-Nếu review_types trong context KHÔNG chứa 'logic':
-→ Trả về ngay: {"skipped": true, "reason": "User không chọn review Logic", "issues": []}
-→ DỪNG, không làm gì thêm.
+- **Prompt**: skill "ck-code-review" "Nếu review_types KHÔNG chứa 'logic': trả {"skipped":true,"issues":[]} và dừng.
 
----
+① Đọc docs/code-standards.md để lấy conventions thực tế.
 
-Review code diff sau theo conventions của dự án này (CLAUDE.md):
-- Naming: snake_case variables, camelCase functions, PascalCase components
-- Vue 3: v-for :key, emit typing, prop validation
-- TypeScript: tránh any, null checks
-- DRY violations, YAGNI
-- Phân loại issues: safe_to_fix (naming, lint) vs needs_dev (logic bugs)
-- Output: issues list + feedback message sẵn sàng gửi DEV
+② Review code conventions (tiêu chí cụ thể, không chung chung):
+- Naming: snake_case vars, camelCase funcs, PascalCase components
+- Vue3: v-for dùng item.id làm :key (không dùng index), defineEmits<{...}>() đúng type, prop có required/default
+- TS: không dùng any, kiểm tra null trước khi access property, computed không có side effect
+- DRY/YAGNI: logic lặp >2 lần không tách hàm, component dùng 1 lần không cần tách
 
-Nếu test_steps có trong context → verify logic code có đúng với expected flow không
+③ Review cấu trúc module (đọc src/):
+- Component đặt đúng layer? (pages/ vs components/ vs layouts/)
+- Feature tách module riêng? (components/staff/, components/auth/,...)
+- File >200 lines? Logic nghiệp vụ lẫn vào component?
+- Circular dependency?
 
-Diff content từ context:
-{{diff_content}}"
+④ Security checklist (bắt buộc, kiểm tra từng điểm):
+- v-html: có dùng với nội dung user input không? → flag ngay nếu có
+- console.log: có in ra token/password/sensitive data không?
+- API key hoặc secret hardcode trong source không?
+- localStorage: có lưu token/password dạng plaintext không?
+- vite proxy: có expose endpoint nhạy cảm không?
+
+Phân loại: safe_to_fix (naming/lint) vs needs_dev (logic/security)
+Security issues luôn là needs_dev và severity=critical."
 
 #### skill-visual-test(ck-web-testing)
 
 - **Prompt**: skill "ck-web-testing" "Nếu review_types KHÔNG chứa 'ui': trả {"status":"skipped","overall":"skipped"} và dừng.
 
-BƯỚC 1 — XÁC ĐỊNH DANH SÁCH URLs CẦN TEST (PHẢI cover TẤT CẢ):
-- Merge: test_urls (user cung cấp) + inferred_urls (từ changed_files)
-- Nếu cả 2 đều rỗng: suy luận lại từ changed_files trong context
-- Ví dụ: changed_files có Register.vue VÀ Staff.vue → phải test CẢ /register VÀ /staff
-- Loại bỏ trùng lặp. KHÔNG bỏ sót file nào trong changed_files.
+BƯỚC 1 — XÁC ĐỊNH URLs VÀ PRECONDITIONS:
+- Merge: test_urls (user cung cấp) + inferred_urls (từ changed_files qua router)
+- Với mỗi URL, xác định preconditions:
+  * Cần đăng nhập không? (pages trong /app/* thường cần auth)
+  * Cần data có sẵn không? (trang list cần có items, trang detail cần có id)
+  * Cần chọn tab/state trước không?
+- Nếu URL cần auth: thực hiện login flow trước (email/password từ test data hoặc hỏi user)
+- Nếu không rõ preconditions: HỎI USER cụ thể trước khi test
 
 BƯỚC 2 — VERIFY SERVER:
-- Thử curl -sk https://localhost:8309 -o /dev/null -w "%{http_code}"
-- Nếu không được: HỎI USER port. Không có server: static_only mode.
+- curl -sk https://localhost:8309 → 200/3xx là OK (ignoreHTTPSErrors tự động)
+- Nếu fail: HỎI USER port. Không có server: chạy static analysis thay thế.
 
-BƯỚC 3A — LIVE TEST (mỗi URL trong danh sách):
-- 3 breakpoints: 1440/768/375px → screenshot, tìm overflow/element chồng
-- Interactive: dropdown mở/đóng, button click, modal, form validation, tab
-- Text: truncate, font fallback, tiếng Việt
-- Thực hiện test_steps nếu có (chỉ cho URL tương ứng)
+BƯỚC 3 — LIVE TEST mỗi URL (Playwright + playwright.config.ts):
+- 4 profiles: Desktop 1920px, HD 1366px, iPhone 14 (390px), iPad (810px)
+- Chụp screenshot mỗi breakpoint → tìm overflow, element chồng nhau, text bị cắt
+- Interactive: dropdown mở/đóng, button click, modal, form validation, tab/accordion
+- Font: không fallback sang serif, tiếng Việt có dấu đúng
+- Thực hiện test_steps nếu user cung cấp (đúng thứ tự, đúng URL tương ứng)
 
-BƯỚC 3B — STATIC ANALYSIS (nếu không có server):
-Phân tích diff từng file: z-index conflict, hardcoded sizes, overflow-hidden trên dropdown, missing responsive.
+BƯỚC 4 — STATIC ANALYSIS (nếu không có server):
+Từ diff tìm: z-index conflict, overflow:hidden trên dropdown parent, hardcoded width/height
 
-BƯỚC 4 — OUTPUT JSON (LUÔN có, dù skipped):
-{"status":"tested|static_only|skipped","pages_tested":[{"url":"","breakpoints":{"desktop":"pass|fail","tablet":"pass|fail","mobile":"pass|fail"},"issues":[]}],"interactive_issues":[],"static_warnings":[],"overall":"pass|fail|skipped","total_issues":0}"
+Output JSON: {"status":"tested|static_only|skipped","pages_tested":[{"url":"","preconditions_met":true,"breakpoints":{},"issues":[]}],"overall":"pass|fail|skipped"}"
 
 #### skill-auto-fix(ck-fix)
 
@@ -253,7 +238,7 @@ Hỏi user tuần tự các thông tin sau, hỏi từng câu một và chờ tr
 
 ---
 
-**[1/4 — BẮT BUỘC] Loại review muốn thực hiện:**
+**[1/3 — BẮT BUỘC] Loại review muốn thực hiện:**
 
 Chọn một hoặc nhiều:
 - **1 — Logic code**: review naming, DRY, YAGNI, TypeScript types, Vue 3 patterns, potential bugs
@@ -263,7 +248,7 @@ Chọn một hoặc nhiều:
 
 ---
 
-**[2/4 — BẮT BUỘC] Phạm vi code cần review** — chọn 1 trong 2 cách:
+**[2/3 — BẮT BUỘC] Phạm vi code cần review** — chọn 1 trong 2 cách:
 
 - **Cách A — Branch diff**: Branch name cần review so với main, ví dụ: `feat/staff-management`
 - **Cách B — Commit range**: Commit ID bắt đầu đến HEAD, ví dụ: `abc1234`
@@ -273,26 +258,24 @@ Nếu không cung cấp gì: dùng current branch so với main.
 
 ---
 
-**[3/4 — Hỏi nếu chọn UI hoặc Tất cả] Thông tin test giao diện:**
+**[3/3 — CHỈ hỏi khi câu [1/3] có chọn "2" hoặc "4"] Thông tin test giao diện:**
 
-- **URL(s) cần test**: ví dụ `http://localhost:8309/staff`
-  (Nếu không có: AI tự suy luận từ changed_files)
-- **Các bước để đến giao diện đó**: ví dụ "1. Vào /staff → 2. Click Thêm nhân viên → 3. Điền form"
+- **URL(s) cần test**: ví dụ `https://localhost:8309/register`
+  (Nếu không có: AI tự suy luận từ changed_files + router)
+- **Các bước để đến giao diện đó**: ví dụ "1. Vào /register → 2. Điền form → 3. Submit"
   (Nếu không có: AI tự suy luận từ code)
 
----
-
-**[4/4 — BẮT BUỘC] Muốn AI auto-fix các safe issues không?** (có/không)
+Nếu câu [1/3] chỉ chọn "1" hoặc "3": bỏ qua câu này, chuyển thẳng sang agent-git-diff.
 ```
 
 ### AskUserQuestion Node Details
 
 Ask the user and proceed based on their choice.
 
-#### ask-fix-action(Bạn muốn làm gì với các safe issues?)
+#### ask-fix-action(Report đã được lưu. Bạn muốn làm gì tiếp theo?)
 
 **Selection mode:** Single Select (branches based on the selected option)
 
 **Options:**
-- **Auto-fix safe issues**: AI sửa naming, missing :key, unused imports
-- **Xong, không cần fix**: Chỉ lấy feedback để gửi DEV
+- **Fix luôn safe issues**: AI sửa naming, missing :key, unused imports ngay bây giờ
+- **Xong, gửi feedback cho DEV**: Lấy message copy-paste để gửi DEV

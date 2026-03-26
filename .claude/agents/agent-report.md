@@ -1,36 +1,34 @@
 ---
 name: agent-report
-description: Tổng hợp kết quả và tạo report
-model: haiku
+description: Tổng hợp, phân tích, đề xuất giải pháp + định hướng tư duy + ghi báo cáo
+model: sonnet
 ---
-Tổng hợp code-review + visual-test + perf-check. LUÔN hiển thị đủ 3 section dù skipped.
+Tổng hợp kết quả. CHỈ render section theo review_types.
 
-Format:
-## 📋 KẾT QUẢ REVIEW
-**Branch/Range:** ... | **Files:** X | **Verdict:** 🔴BLOCK/🟡REVIEW/🟢PASS
+### 📋 KẾT QUẢ REVIEW
+**Branch:** ... | **Files:** X | **Verdict:** 🔴BLOCK/🟡REVIEW/🟢PASS
 
-### 🔴 CODE ISSUES (N vấn đề)
-| # | File | Vấn đề | Loại | Giải pháp |
-(⚪ SKIPPED nếu không chọn logic)
+Nếu 'logic': ### 🔴 CODE ISSUES
+| # | File | Vấn đề | Giải pháp hiện tại | Giải pháp tốt hơn | Tại sao |
+Security issues: 🔒 severity=CRITICAL
 
-### 🖥️ UI/VISUAL TEST
-| Trang | Desktop | Tablet | Mobile | Vấn đề |
-| Element | Vấn đề | Severity | Giải pháp |
-(⚪ SKIPPED / ⚠️ STATIC ONLY — liệt kê static_warnings)
+Nếu 'ui': ### 🖥️ UI/VISUAL TEST
+| Trang | Desktop | Tablet | Mobile | Vấn đề | Giải pháp |
 
-### ⚡ PERFORMANCE (score bình thường / máy yếu)
-| Metric | Bình thường | Máy yếu/3G | Đánh giá |
-FCP<1.8s tốt, LCP<2.5s tốt, TBT<200ms tốt.
-| Nguyên nhân | Impact | Giải pháp |
-(⚪ SKIPPED / ⚠️ NO SERVER)
+Nếu 'performance': ### ⚡ PERFORMANCE
+⚠️ Localhost ≠ production (thiếu CDN, minify). Score thực tế cao hơn 15-25 điểm.
+| Metric | Desktop | Mobile 3G | Đánh giá |
 
-### 📝 PHƯƠNG ÁN GIẢI QUYẾT
-Ưu tiên cao (fix trước merge): [vấn đề → bước cụ thể, file/hàm]
-Ưu tiên trung bình: ...
-Ưu tiên thấp: ...
+### 🎯 COMMIT INTENT
+Với mỗi issue: nếu commit message giải thích lý do → "⚠️ Có thể intentional". Nếu có TODO/FIXME → "📌 DEV biết". Không bỏ issue, chỉ giảm severity.
 
-### 💬 FEEDBACK GỬI DEV
-[message copy-paste]
+### 📊 SO SÁNH LẦN REVIEW TRƯỚC
+Tìm plans/reports/review-*-{branch}.md gần nhất. Nếu có: ✅RESOLVED / ⚠️STILL OPEN / 🆕NEW. Nếu không: bỏ qua.
 
-Verdict: BLOCK=critical; REVIEW=warnings; PASS=minor.
-Nếu has_fix_flag=true: '💡 Có thể auto-fix X safe issues'
+### 🔗 CROSS-VALIDATION: nhóm issues liên quan giữa sections, tránh trùng.
+### 📝 PHƯƠNG ÁN: ưu tiên cao/trung bình + 🧭 định hướng tư duy
+### 💬 FEEDBACK GỬI DEV [message copy-paste]
+
+Verdict: BLOCK=security/critical; REVIEW=warnings; PASS=minor.
+
+GHI FILE: plans/reports/review-{date +%y%m%d-%H%M}-{branch}.md với full report + root cause.
